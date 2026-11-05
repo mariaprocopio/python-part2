@@ -150,7 +150,37 @@ input[type=range]{accent-color:var(--accent);width:200px;max-width:100%}
 table.cmp.sumtab td:first-child{font-family:var(--f-body);font-size:.95rem}
 .codeval{font-family:var(--f-mono);font-size:1.5rem;font-weight:600;letter-spacing:.06em;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:12px 16px;margin:6px 0 10px;overflow-x:auto;white-space:nowrap;user-select:all}
 details.verify{margin-top:28px;padding:12px 16px;border:1px dashed var(--line);border-radius:10px;font-size:.95rem}
+.bulkin{display:block;width:100%;font-family:var(--f-mono);font-size:.85rem;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--code-bg);color:var(--code-ink);resize:vertical}
+.bulkin:focus{border-color:var(--accent);outline:none}
+.bulktab td{font-variant-numeric:tabular-nums}
+.bulktab td:not(:last-child),.bulktab th{white-space:nowrap}
+table.cmp.bulktab td:first-child{font-family:var(--f-mono)}
+.bulktab .ok{color:var(--ok);font-weight:600}
+.bulktab .bad{color:var(--err);font-weight:600}
 details.verify summary{cursor:pointer;color:var(--muted);font-weight:600}
+.sig{font-family:var(--f-mono);font-size:.9rem;font-weight:600;background:var(--accent-soft);color:var(--ink);padding:10px 14px;border-radius:8px;margin:10px 0;overflow-x:auto;white-space:pre}
+table.cmp.params td:first-child{white-space:nowrap;font-weight:600}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px 18px;margin:8px 0 4px;font-size:.92rem}
+.ctrls label{display:flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
+.ctrls select{font-family:var(--f-mono);font-size:.85rem;padding:4px 6px;border:1.5px solid var(--line);border-radius:6px;background:var(--code-bg);color:var(--code-ink)}
+.filebox{font-family:var(--f-mono);font-size:.84rem;background:var(--code-bg);color:var(--code-ink);border-radius:8px;padding:8px 0;overflow-x:auto;margin-top:8px;tab-size:6}
+.filebox .ln{display:flex;gap:12px;align-items:baseline;padding:1px 12px;white-space:pre}
+.filebox .no{color:var(--muted);min-width:1.6em;text-align:right;user-select:none}
+.filebox .tag{margin-left:auto;padding-left:16px;font-family:var(--f-body);font-size:.78rem;color:var(--muted);white-space:nowrap}
+.filebox .skip .txt{color:var(--muted);text-decoration:line-through}
+.filebox .cmt .txt{color:var(--muted);font-style:italic}
+.filebox .bad{background:var(--err-soft)} .filebox .bad .tag{color:var(--err);font-weight:600}
+.filebox .use{background:var(--hi);color:var(--hi-ink);border-radius:3px;padding:0 2px}
+.filebox .unused{color:var(--muted)}
+.filebox .hdr .txt{color:var(--accent);font-weight:600}
+:root{--s0:#1f8a9e;--s1:#e0962b;--s2:#8a63c9;--s3:#d0566b;--s4:#3f9a5a;--s5:#4a77d1}
+.sortgrid{display:grid;grid-template-columns:auto repeat(6,minmax(42px,auto));gap:5px 4px;align-items:center;overflow-x:auto;padding-bottom:4px}
+.sortgrid .rl{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);padding-right:10px;white-space:nowrap}
+.sortgrid .cellbox{position:relative;cursor:default}
+.sortgrid .cellbox.stripe{border-bottom-width:5px}
+.sortgrid .cellbox.click{cursor:pointer}
+.sortgrid .sep{grid-column:1/-1;height:1px;background:var(--line);margin:6px 0}
+.sortgrid .cellbox.idxc{color:var(--accent);font-weight:600}
 .callout{margin:16px 0;padding:12px 16px;background:var(--hi-soft);border-radius:8px;font-size:.96rem}
 footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--line);font-size:.9rem;color:var(--muted)}
 
@@ -712,7 +742,41 @@ v1 = np.array([22, 38, 30, 40, 18, 1])
 print(np.min(v1), np.argmin(v1))   # 1D: no axis needed</textarea></div>
 
   <h3>Sorting: <code>sort</code>, <code>argsort</code></h3>
-  <p><code>np.sort</code> returns a sorted copy (ascending). <code>np.argsort</code> returns the indices that would sort the array, which is useful for reordering a second array to match.</p>
+  <p><code>np.sort(V)</code> returns the <b>values</b> of <code>V</code> in ascending order. <code>np.argsort(V)</code> returns the <b>indices</b> (positions) that would put <code>V</code> in order: first the index of the smallest value, then the next smallest, and so on.</p>
+  <p>Why would you want positions instead of values? Because you can use them to <b>index another array</b>. Suppose you measured a voltage <code>V</code> at times <code>t</code>. If you sort <code>V</code> on its own, you lose track of <i>when</i> each value was measured. With <code>idx = np.argsort(V)</code>, both <code>V[idx]</code> and <code>t[idx]</code> are reordered the same way, so each voltage stays paired with its time.</p>
+
+  <div class="widget" id="wsort">
+    <div class="wtitle">Try it · argsort explorer</div>
+    <div class="expr" style="font-family:var(--f-body)">
+      <span>Order:</span>
+      <button type="button" class="chip" id="wsAsc" aria-pressed="true">ascending · np.argsort(V)</button>
+      <button type="button" class="chip" id="wsDesc" aria-pressed="false">descending · np.argsort(V)[::-1]</button>
+    </div>
+    <div id="wsGrid"></div>
+    <div class="expr" style="font-family:var(--f-body)">
+      <button type="button" class="btn" id="wsPrev" aria-label="Previous position">◀</button>
+      <button type="button" class="btn primary" id="wsPlay">Play</button>
+      <button type="button" class="btn" id="wsNext" aria-label="Next position">▶</button>
+      <span class="wnote" style="margin:0">or click any cell in the bottom three rows</span>
+    </div>
+    <div class="result" id="wsOut"></div>
+    <div class="wnote">The colored stripe under each measurement travels with it, so you can follow where each (time, voltage) pair ends up.</div>
+  </div>
+
+  <div class="cell"><textarea>t = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 2.5])   # time (s)
+V = np.array([2.4, 3.1, 0.8, 4.2, 1.5, 3.6])   # voltage (V) measured at each time
+
+print(np.sort(V))       # sorted values, but which time does each belong to?
+
+idx = np.argsort(V)     # positions that would sort V
+print(idx)
+print(V[idx])           # same as np.sort(V)
+print(t[idx])           # the times, reordered to match: pairs stay together
+
+idx_desc = idx[::-1]    # reverse: largest first
+print('3 largest voltages:', V[idx_desc][:3])
+print('measured at t =', t[idx_desc][:3])</textarea></div>
+  <p>The same idea works on 2D arrays with an <code>axis</code>: each column (axis=0) or row (axis=1) is sorted on its own.</p>
   <div class="cell"><textarea>M = np.array([[1, 2, 3, 4], [8, 6, 0, 9], [9, 2, 3, 12]])
 print(np.sort(M, axis=0))      # sort each column
 print(np.argsort(M, axis=0))
@@ -761,7 +825,18 @@ best = np.argmax(np.sum(scores, axis=1))</pre></details>
   <h2>Import and export an array</h2>
 
   <h3>11.7.1 <code>loadtxt()</code></h3>
-  <p><code>A = np.loadtxt(filename, delimiter='sep')</code> reads a file of numbers (comment lines starting with <code>#</code> are skipped) into a 2D array. If the fields are not separated by spaces, give the <code>delimiter</code>. Then slice out the columns you need.</p>
+  <div class="sig">A = np.loadtxt(filename, comments='#', delimiter=None, skiprows=0, usecols=None)</div>
+  <p>Reads a text file of numbers and stores the data in a 2D array (one row per line, one column per field). Then you slice out the columns you need.</p>
+  <div class="tablewrap"><table class="cmp params">
+    <thead><tr><th>parameter</th><th>what it does</th></tr></thead>
+    <tbody>
+      <tr><td>filename</td><td>Name or path of the file to read.</td></tr>
+      <tr><td>comments='#'</td><td>(default) Ignores text following <code>#</code>. Change it if the file uses a different comment character, e.g. <code>'%'</code>.</td></tr>
+      <tr><td>delimiter=None</td><td>(default) Separates values by whitespace (spaces or tabs). Change to, e.g., <code>','</code> for comma-separated values.</td></tr>
+      <tr><td>skiprows=0</td><td>(default) Does not skip any lines. Change to, e.g., <code>1</code> to skip the first line (such as a header). Comment lines count too.</td></tr>
+      <tr><td>usecols=None</td><td>(default) Reads all columns. Change to, e.g., <code>(0, 2)</code> to read only the first and third columns.</td></tr>
+    </tbody>
+  </table></div>
   <div class="callout">This page includes the course file <code>ph.dat</code> (the same one as on Canvas): two space-separated columns, with pH in the first and the measured value <code>p</code> in the second.</div>
   <div class="cell"><textarea>print(open('ph.dat').read())    # look at the file first
 
@@ -771,10 +846,94 @@ p  = dat[:, 1]
 print(dat.shape)
 print(ph)
 print(p)</textarea></div>
-  <p class="wnote">Options for dtype, skipped rows and more: <a href="https://numpy.org/doc/stable/reference/generated/numpy.loadtxt.html" target="_blank" rel="noopener">numpy.loadtxt</a>.</p>
+  <p>Real files are often messier: a comment line, a header with column names, commas between values. The page also includes <code>signal.csv</code>, an oscilloscope recording with three columns: time (s), voltage (V) and current (A). Use the explorer to find the options that read it.</p>
+
+  <div class="widget" id="wload">
+    <div class="wtitle">Try it · loadtxt explorer</div>
+    <div class="ctrls">
+      <label>comments <select id="wlCom"><option value="#">'#'</option><option value="%">'%'</option></select></label>
+      <label>delimiter <select id="wlDel"><option value="none">None (whitespace)</option><option value="," selected>','</option></select></label>
+      <label>skiprows <select id="wlSkip"><option>0</option><option>1</option><option>2</option><option>3</option></select></label>
+      <label>usecols <select id="wlCols"><option value="all">None (all)</option><option value="0,2">(0, 2)</option><option value="0,1">(0, 1)</option><option value="1">(1,)</option></select></label>
+    </div>
+    <div class="expr" id="wlCall"></div>
+    <div class="filebox" id="wlFile" aria-label="Contents of signal.csv"></div>
+    <div class="result" id="wlOut"></div>
+    <div class="wnote" id="wlNote"></div>
+  </div>
+
+  <div class="cell"><textarea>print(open('signal.csv').read())
+
+# skiprows=2: skip the comment line and the header
+A = np.loadtxt('signal.csv', delimiter=',', skiprows=2)
+print(A.shape)
+t = A[:, 0]                 # time
+V = A[:, 1]                 # voltage
+print(t)
+print(V)
+
+# usecols=(0, 2): time and current only
+B = np.loadtxt('signal.csv', delimiter=',', skiprows=2, usecols=(0, 2))
+print(B)</textarea></div>
+  <p>A file that marks comments with <code>%</code> instead of <code>#</code> needs <code>comments='%'</code>:</p>
+  <div class="cell"><textarea>with open('calib.dat', 'w') as f:      # make a small file to read
+    f.write('% calibration, detector 2\n1.0  0.98\n2.0  2.03\n3.0  2.95\n')
+
+print(np.loadtxt('calib.dat', comments='%'))</textarea></div>
+  <p class="wnote">Reference: <a href="https://numpy.org/doc/stable/reference/generated/numpy.loadtxt.html" target="_blank" rel="noopener">numpy.loadtxt</a>.</p>
 
   <h3>11.7.2 <code>savetxt()</code></h3>
-  <p><code>np.savetxt(filename, X, fmt='format', delimiter='sep')</code> writes an array to a text file. Without <code>fmt</code> and <code>delimiter</code> it uses <code>%.18e</code> and spaces. Here we save, then read the file back to see what was written.</p>
+  <div class="sig">np.savetxt(filename, X, fmt='%.18e', delimiter=' ', header='', comments='# ')</div>
+  <p>Writes an array to a text file.</p>
+  <div class="tablewrap"><table class="cmp params">
+    <thead><tr><th>parameter</th><th>what it does</th></tr></thead>
+    <tbody>
+      <tr><td>filename</td><td>Name or path of the file to save.</td></tr>
+      <tr><td>X</td><td>NumPy array to save (1D or 2D).</td></tr>
+      <tr><td>fmt='%.18e'</td><td>(default) Saves numbers in scientific notation with 18 decimal places. Change to, e.g., <code>'%.3f'</code> for 3 decimal places or <code>'%d'</code> for integers.</td></tr>
+      <tr><td>delimiter=' '</td><td>(default) Separates columns with a space. Change to, e.g., <code>','</code> for comma-separated values.</td></tr>
+      <tr><td>header=''</td><td>(default) Does not write a header. Change to, e.g., <code>'Time,Voltage'</code> to add column names.</td></tr>
+      <tr><td>comments='# '</td><td>(default) Adds <code>#</code> before the header, marking it as a comment. Change to <code>''</code> to write the header without <code>#</code>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="widget" id="wsave">
+    <div class="wtitle">Try it · savetxt explorer</div>
+    <div class="expr">data = np.vstack((t, V)).T    <span class="wnote" style="margin:0;font-family:var(--f-body)"># 6 rows × 2 columns: time, voltage</span></div>
+    <div class="ctrls">
+      <label>fmt <select id="wvFmt"><option>%.18e</option><option selected>%.3f</option><option>%.1f</option><option>%d</option></select></label>
+      <label>delimiter <select id="wvDel"><option value=" ">' '</option><option value="," selected>','</option><option value="\t">'\t' (tab)</option></select></label>
+      <label>header <select id="wvHead"><option value="">''</option><option value="Time,Voltage" selected>'Time,Voltage'</option></select></label>
+      <label>comments <select id="wvCom"><option value="# ">'# '</option><option value="">''</option></select></label>
+    </div>
+    <div class="expr" id="wvCall"></div>
+    <div class="filebox" id="wvFile" aria-label="Contents of the saved file"></div>
+    <div class="wnote" id="wvNote"></div>
+  </div>
+
+  <p><b>Round trip.</b> Save the time and voltage arrays as two columns with a header, then read the file back. With the default <code>comments='# '</code>, the header starts with <code>#</code>, so <code>loadtxt</code> skips it automatically.</p>
+  <div class="cell"><textarea>t = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 2.5])
+V = np.array([2.4, 3.1, 0.8, 4.2, 1.5, 3.6])
+data = np.vstack((t, V)).T   # stack as rows, then transpose: 6 x 2
+
+np.savetxt('signal_out.csv', data, fmt='%.3f', delimiter=',', header='Time,Voltage')
+print(open('signal_out.csv').read())
+
+# the header line starts with #, so it is skipped as a comment
+back = np.loadtxt('signal_out.csv', delimiter=',')
+print(back)</textarea></div>
+  <p>With <code>comments=''</code> the header is plain text, so you must skip it when reading:</p>
+  <div class="cell"><textarea>t = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 2.5])
+V = np.array([2.4, 3.1, 0.8, 4.2, 1.5, 3.6])
+data = np.vstack((t, V)).T
+
+np.savetxt('plain.csv', data, fmt='%.1f', delimiter=',', header='Time,Voltage', comments='')
+print(open('plain.csv').read())
+
+# without skiprows=1 this fails: the header is not a comment
+back = np.loadtxt('plain.csv', delimiter=',', skiprows=1)
+print(back)</textarea></div>
+  <p>Integers and other separators:</p>
   <div class="cell"><textarea>M = np.array([[1, 2, 3, 4], [8, 6, 0, 9], [9, 2, 3, 12]])
 
 np.savetxt('file1.txt', M, fmt='%d', delimiter=':')
@@ -782,7 +941,7 @@ print(open('file1.txt').read())
 
 np.savetxt('file1.csv', M, fmt='%.1f', delimiter=',')
 print(open('file1.csv').read())</textarea></div>
-  <p class="wnote">Headers and comments: <a href="https://numpy.org/doc/stable/reference/generated/numpy.savetxt.html" target="_blank" rel="noopener">numpy.savetxt</a>. Files written here live only in this browser tab.</p>
+  <p class="wnote">Reference: <a href="https://numpy.org/doc/2.5/reference/generated/numpy.savetxt.html" target="_blank" rel="noopener">numpy.savetxt</a>. Files written here live only in this browser tab.</p>
 </section>
 
 <!-- ============ 11.8 ============ -->
@@ -1090,6 +1249,137 @@ function splitTop(s){ // split on top-level commas
   fnS.addEventListener('change',draw); axS.addEventListener('change',draw); draw();
 })();
 
+/* argsort explorer */
+(function(){
+  const t=[0.0,0.5,1.0,1.5,2.0,2.5], V=[2.4,3.1,0.8,4.2,1.5,3.6];
+  const asc=[...V.keys()].sort((a,b)=>V[a]-V[b]);
+  let desc=false, pos=0, timer=null;
+  const grid=$('#wsGrid'), out=$('#wsOut');
+  const f1=x=>Number.isInteger(x)?x+'.':String(x);
+  const stripe=i=>`border-bottom-color:var(--s${i})`;
+  function draw(){
+    const idx=desc?asc.slice().reverse():asc, src=idx[pos];
+    let h='<div class="sortgrid">';
+    h+='<div class="rl">index</div>'+t.map((_,i)=>`<div class="idx">${i}</div>`).join('');
+    h+='<div class="rl">t (s)</div>'+t.map((x,i)=>`<div class="cellbox stripe${i===src?' sel':''}" style="${stripe(i)}">${f1(x)}</div>`).join('');
+    h+='<div class="rl">V (V)</div>'+V.map((x,i)=>`<div class="cellbox stripe${i===src?' sel':''}" style="${stripe(i)}">${f1(x)}</div>`).join('');
+    h+='<div class="sep"></div>';
+    h+='<div class="rl">position</div>'+idx.map((_,k)=>`<div class="idx">${k}</div>`).join('');
+    h+=`<div class="rl">idx</div>`+idx.map((i,k)=>`<div class="cellbox idxc click${k===pos?' sel':''}" data-k="${k}">${i}</div>`).join('');
+    h+=`<div class="rl">V[idx]</div>`+idx.map((i,k)=>`<div class="cellbox stripe click${k===pos?' sel':''}" data-k="${k}" style="${stripe(i)}">${f1(V[i])}</div>`).join('');
+    h+=`<div class="rl">t[idx]</div>`+idx.map((i,k)=>`<div class="cellbox stripe click${k===pos?' sel':''}" data-k="${k}" style="${stripe(i)}">${f1(t[i])}</div>`).join('');
+    h+='</div>';
+    grid.innerHTML=h;
+    const what = desc ? (pos===0?'largest':pos===5?'smallest':`${['','2nd','3rd','4th','5th'][pos]} largest`) : (pos===0?'smallest':pos===5?'largest':`${['','2nd','3rd','4th','5th'][pos]} smallest`);
+    out.textContent =
+`idx = ${desc?'np.argsort(V)[::-1]':'np.argsort(V)'}   ->  [${idx.join(' ')}]
+
+Position ${pos}: idx[${pos}] = ${src}
+  The ${what} voltage is at index ${src} of V.
+  V[idx][${pos}] = V[${src}] = ${V[src].toFixed(1)} V
+  t[idx][${pos}] = t[${src}] = ${t[src].toFixed(1)} s   (it was measured at t = ${t[src].toFixed(1)} s)`;
+  }
+  grid.addEventListener('click',e=>{ const c=e.target.closest('[data-k]'); if(!c) return; stop(); pos=+c.dataset.k; draw(); });
+  function setOrder(d){ desc=d; $('#wsAsc').setAttribute('aria-pressed',String(!d)); $('#wsDesc').setAttribute('aria-pressed',String(d)); pos=0; draw(); }
+  $('#wsAsc').onclick=()=>{stop(); setOrder(false);}; $('#wsDesc').onclick=()=>{stop(); setOrder(true);};
+  $('#wsPrev').onclick=()=>{stop(); pos=(pos+5)%6; draw();};
+  $('#wsNext').onclick=()=>{stop(); pos=(pos+1)%6; draw();};
+  function stop(){ if(timer){clearInterval(timer); timer=null; $('#wsPlay').textContent='Play';} }
+  $('#wsPlay').onclick=()=>{ if(timer){stop();return;} $('#wsPlay').textContent='Pause'; pos=-1;
+    const step=()=>{ pos++; if(pos>5){ pos=5; stop(); } draw(); }; step(); timer=setInterval(step,1400); };
+  draw();
+})();
+
+/* loadtxt explorer: mirrors np.loadtxt rules for this file */
+const SIGNALCSV = `# oscilloscope run 3
+Time,Voltage,Current
+0.0,2.4,0.12
+0.5,3.1,0.15
+1.0,0.8,0.04
+1.5,4.2,0.21
+2.0,1.5,0.07
+2.5,3.6,0.18
+`;
+(function(){
+  const lines=SIGNALCSV.trimEnd().split('\n');
+  const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function draw(){
+    const com=$('#wlCom').value, del=$('#wlDel').value, skip=+$('#wlSkip').value, colsV=$('#wlCols').value;
+    const cols= colsV==='all'?null:colsV.split(',').map(Number);
+    const args=[`'signal.csv'`]; if(com!=='#') args.push(`comments='${com}'`); if(del!=='none') args.push(`delimiter='${del}'`); if(skip) args.push(`skiprows=${skip}`); if(cols) args.push(`usecols=(${cols.join(', ')}${cols.length===1?',':''})`);
+    $('#wlCall').textContent=`A = np.loadtxt(${args.join(', ')})`;
+    const split=s=> del==='none' ? s.trim().split(/\s+/) : s.split(del).map(x=>x.trim());
+    let err=null, rows=[], row=0; const html=[];
+    lines.forEach((ln,i)=>{
+      let cls='', tag='', txt=esc(ln);
+      if(i<skip){ cls='skip'; tag='skipped (skiprows)'; }
+      else if(ln.trim().startsWith(com)){ cls='cmt'; tag=`comment (starts with '${com}')`; }
+      else if(err){ cls=''; tag=''; txt=`<span class="unused">${esc(ln)}</span>`; }
+      else {
+        const toks=split(ln);
+        const use=cols||toks.map((_,k)=>k);
+        let bad=null;
+        for(const k of use){ if(k>=toks.length){ bad={msg:`usecols: column ${k} does not exist (only ${toks.length} column${toks.length>1?'s':''} found)`}; break; } const v=toks[k]; if(v===''||isNaN(Number(v))){ bad={msg:`could not convert string '${v}' to float64 at row ${row}, column ${k+1}.`}; break; } }
+        if(bad){ err=bad.msg; cls='bad'; tag='✗ error here'; }
+        else { rows.push(use.map(k=>Number(toks[k]))); tag=`→ row ${row} of A`; }
+        if(!bad||true){
+          const parts = del==='none' ? [ln] : ln.split(del);
+          if(del==='none' && toks.length===1){ txt=`<span class="${bad?'':'use'}">${esc(ln)}</span>`; }
+          else txt=parts.map((p,k)=>`<span class="${use.includes(k)&&!bad?'use':(use.includes(k)?'':'unused')}">${esc(p)}</span>`).join(del==='none'?' ':`<span class="unused">${esc(del)}</span>`);
+          if(bad && !/usecols/.test(err)) txt=esc(ln);
+        }
+        row++;
+      }
+      html.push(`<div class="ln ${cls}"><span class="no">${i+1}</span><span class="txt">${txt}</span><span class="tag">${tag}</span></div>`);
+    });
+    $('#wlFile').innerHTML=html.join('');
+    const out=$('#wlOut'), note=$('#wlNote');
+    if(err){ out.classList.add('err'); out.textContent='ValueError: '+err;
+      note.textContent = /'Time'/.test(err) ? 'The header line is text, not numbers. Skip it with skiprows (and remember the comment line above it counts too).'
+        : /'#/.test(err) ? "With comments='%', the line starting with # is no longer treated as a comment. Skip it, or use comments='#'."
+        : /,/.test(err) ? "With delimiter=None, NumPy splits on spaces, so a whole line like '0.0,2.4,0.12' is one value. This file uses commas: delimiter=','."
+        : 'Check the options above.';
+    } else {
+      out.classList.remove('err');
+      const A = cols&&cols.length===1 ? rows.map(r=>r[0]) : rows;
+      const shape = Array.isArray(A[0]) ? `(${A.length}, ${A[0].length})` : `(${A.length},)`;
+      out.textContent = `A.shape = ${shape}\n${fmtArr(Object.assign(A,{__float:true}))}`;
+      note.textContent = cols&&cols.length===1 ? 'A single column comes back as a 1D array.' : 'Highlighted values are the ones read into A.';
+    }
+  }
+  ['#wlCom','#wlDel','#wlSkip','#wlCols'].forEach(s=>$(s).addEventListener('change',draw));
+  draw();
+})();
+
+/* savetxt explorer: mirrors np.savetxt formatting */
+(function(){
+  const t=[0.0,0.5,1.0,1.5,2.0,2.5], V=[2.4,3.1,0.8,4.2,1.5,3.6];
+  const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function f(x,fmt){
+    if(fmt==='%d') return String(Math.trunc(x));
+    if(fmt==='%.3f') return x.toFixed(3);
+    if(fmt==='%.1f') return x.toFixed(1);
+    const s=x.toExponential(18); const m=s.match(/^(-?[\d.]+)e([+-])(\d+)$/); return `${m[1]}e${m[2]}${m[3].padStart(2,'0')}`;
+  }
+  function draw(){
+    const fmt=$('#wvFmt').value, del=$('#wvDel').value, head=$('#wvHead').value, com=$('#wvCom').value;
+    const args=[`'out.csv'`,'data']; if(fmt!=='%.18e') args.push(`fmt='${fmt}'`); if(del!==' ') args.push(`delimiter='${del==='\t'?'\\t':del}'`); if(head) args.push(`header='${head}'`); if(com!=='# ') args.push(`comments='${com}'`);
+    $('#wvCall').textContent=`np.savetxt(${args.join(', ')})`;
+    const out=[]; if(head) out.push({s:com+head, k:'hdr'});
+    t.forEach((x,i)=>out.push({s:[f(x,fmt),f(V[i],fmt)].join(del), k:''}));
+    $('#wvFile').innerHTML=out.map((l,i)=>`<div class="ln ${l.k}"><span class="no">${i+1}</span><span class="txt">${esc(l.s)}</span>${l.k?`<span class="tag">${com?'header, as a comment':'header, plain text'}</span>`:''}</div>`).join('');
+    const notes=[];
+    if(fmt==='%.18e') notes.push('%.18e shows 18 decimals: you can see that 2.4 is not stored exactly in binary.');
+    if(fmt==='%d') notes.push('%d cuts off the decimals: 0.5 becomes 0 and 2.4 becomes 2. Use it only for whole numbers.');
+    if(head && com) notes.push("loadtxt skips the '#' header line automatically.");
+    if(head && !com) notes.push('The header has no #, so read this file back with skiprows=1.');
+    if(del==='\t') notes.push('Tab-separated files open neatly in Excel; read them back with the default delimiter=None.');
+    $('#wvNote').textContent=notes.join(' ');
+  }
+  ['#wvFmt','#wvDel','#wvHead','#wvCom'].forEach(s=>$(s).addEventListener('change',draw));
+  draw();
+})();
+
 /* ---------- quizzes ---------- */
 $$('.quiz').forEach(q=>{
   const fb=$('.fb',q), name=qName(q);
@@ -1136,6 +1426,7 @@ function payload(){
   const day=Math.max(0,Math.min(4095,Math.round((Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())-EPOCH)/86400000)));
   return ex + 32*ans + 2048*first + 131072*day;
 }
+
 
 
 /* ---------- Python runtime ---------- */
@@ -1219,6 +1510,7 @@ function getPy(){
       await py.loadPackage('numpy');
       py.runPython(HELPER);
       py.FS.writeFile('ph.dat', PHDAT);
+      py.FS.writeFile('signal.csv', SIGNALCSV);
       setStatus('ready','Python ready · NumPy 2.2');
       return py;
     })().catch(e=>{ console.error(e); setStatus('error','Python couldn’t start. Tap to retry.'); pyPromise=null; throw e; });
