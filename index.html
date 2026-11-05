@@ -1,0 +1,1306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>NumPy Arrays · Chapter 11</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky chapter rail on the left, one reading column of lessons; array "cells" are the recurring motif. */
+:root{
+  --bg:#f4f7f9; --surface:#ffffff; --ink:#15212c; --muted:#566878; --line:#d6dfe6;
+  --accent:#17708f; --accent-soft:#e1eff4; --hi:#f3b63f; --hi-soft:#fdf0d2; --hi-ink:#3b2900;
+  --code-bg:#eef3f6; --code-ink:#132230; --ok:#2c7a4b; --ok-soft:#e2f2e8; --err:#b2392e; --err-soft:#fbe7e4;
+  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e151c; --surface:#151f29; --ink:#e3eaf0; --muted:#93a5b4; --line:#283846;
+  --accent:#5fb9d8; --accent-soft:#16303c; --hi:#e3a93a; --hi-soft:#3a2d12; --hi-ink:#1a1100;
+  --code-bg:#0b1218; --code-ink:#dbe6ee; --ok:#62c48c; --ok-soft:#142d20; --err:#ef7d72; --err-soft:#371a17;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e151c; --surface:#151f29; --ink:#e3eaf0; --muted:#93a5b4; --line:#283846;
+  --accent:#5fb9d8; --accent-soft:#16303c; --hi:#e3a93a; --hi-soft:#3a2d12; --hi-ink:#1a1100;
+  --code-bg:#0b1218; --code-ink:#dbe6ee; --ok:#62c48c; --ok-soft:#142d20; --err:#ef7d72; --err-soft:#371a17;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6}
+a{color:var(--accent)}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--accent-soft);padding:.08em .32em;border-radius:4px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:1.85rem;font-weight:700}
+h3{font-size:1.2rem;font-weight:700;margin-top:1.6rem}
+p{margin:.6rem 0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;max-width:1180px;margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 64px}
+nav.rail{position:sticky;top:env(safe-area-inset-top, 0px);align-self:start;padding-top:32px;max-height:100vh;overflow:auto}
+.rail .course{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.rail ol{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:2px}
+.rail a{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--ink);padding:6px 10px;border-radius:6px;font-size:.95rem}
+.rail a:hover{background:var(--accent-soft)}
+.rail a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.rail .num{font-family:var(--f-mono);font-size:.78rem;color:var(--muted);min-width:2.2em}
+.rail .done{margin-left:auto;color:var(--ok);font-size:.8rem}
+.progress{margin-top:18px;font-size:.85rem;color:var(--muted)}
+.bar{height:6px;background:var(--line);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+
+main{min-width:0;max-width:760px}
+header.hero{padding:40px 0 8px}
+.eyebrow{font-size:.8rem;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.hero h1{font-size:clamp(2.3rem,6vw,3.6rem);font-weight:700;margin:.3rem 0 .6rem;letter-spacing:-.01em}
+.hero .lede{font-size:1.15rem;color:var(--muted);max-width:60ch}
+.hero-array{margin:26px 0 8px}
+.howto{display:flex;flex-wrap:wrap;gap:10px 22px;margin:18px 0 0;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:.95rem}
+.howto b{font-weight:600}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 10px;background:var(--surface);cursor:pointer;color:var(--ink);font-family:var(--f-body)}
+.status .dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.status[data-s="loading"] .dot{background:var(--hi);animation:pulse 1s infinite}
+.status[data-s="ready"] .dot{background:var(--ok)}
+.status[data-s="error"] .dot{background:var(--err)}
+@keyframes pulse{50%{opacity:.3}}
+
+section.lesson{padding-top:56px;scroll-margin-top:12px}
+.secnum{font-family:var(--f-mono);color:var(--accent);font-size:.95rem;font-weight:600}
+.lesson > h2{margin-top:4px}
+
+/* array cell motif */
+.arr{display:inline-flex;flex-direction:column;gap:4px;max-width:100%;overflow-x:auto;padding-bottom:4px}
+.arr .row{display:flex;gap:4px}
+.cellbox{min-width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:.95rem;
+  border:1.5px solid var(--line);border-radius:6px;background:var(--surface);transition:background .15s,border-color .15s,color .15s}
+.cellbox.sel{background:var(--hi);border-color:var(--hi);color:var(--hi-ink);font-weight:600}
+.cellbox.t{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.cellbox.f{color:var(--muted)}
+.idx{min-width:42px;text-align:center;font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+.lbl{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);align-self:center;padding-left:8px;white-space:nowrap}
+
+table.cmp{border-collapse:collapse;width:100%;font-size:.95rem;margin:12px 0}
+.tablewrap{overflow-x:auto}
+table.cmp th,table.cmp td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line)}
+table.cmp th{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+table.cmp td:first-child{font-family:var(--f-mono);font-size:.9rem}
+
+/* code cells */
+.cell{margin:16px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--code-bg)}
+.cell textarea{display:block;width:100%;border:0;resize:none;background:transparent;color:var(--code-ink);font-family:var(--f-mono);font-size:.86rem;line-height:1.55;padding:14px 16px 6px;tab-size:4;white-space:pre;overflow-x:auto;overflow-y:hidden;min-height:3em}
+.cell textarea:focus{outline:none}
+.cell:focus-within{border-color:var(--accent)}
+.cell .tools{display:flex;gap:8px;align-items:center;padding:6px 10px 8px;flex-wrap:wrap}
+.cell .hint{margin-left:auto;font-size:.75rem;color:var(--muted)}
+button.btn{font-family:var(--f-body);font-size:.88rem;font-weight:600;border-radius:6px;padding:5px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button.btn:hover{filter:brightness(1.06)}
+button.btn:disabled{opacity:.6;cursor:wait}
+.out{margin:0;border-top:1px dashed var(--line);padding:10px 16px 12px;font-family:var(--f-mono);font-size:.84rem;white-space:pre;overflow-x:auto;background:var(--surface);color:var(--ink)}
+.out.err{color:var(--err);background:var(--err-soft)}
+.out.muted{color:var(--muted)}
+
+/* widgets */
+.widget{margin:20px 0;padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.widget .wtitle{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px}
+.expr{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-family:var(--f-mono);font-size:.95rem;margin:10px 0}
+.expr input{font-family:var(--f-mono);font-size:.95rem;padding:5px 8px;border:1.5px solid var(--line);border-radius:6px;background:var(--code-bg);color:var(--code-ink);width:12ch}
+.expr input:focus{border-color:var(--accent);outline:none}
+.expr select{font-family:var(--f-mono);font-size:.9rem;padding:4px 6px;border:1.5px solid var(--line);border-radius:6px;background:var(--code-bg);color:var(--code-ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.chip{font-family:var(--f-mono);font-size:.8rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}
+.chip:hover,.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.result{font-family:var(--f-mono);font-size:.88rem;white-space:pre;overflow-x:auto;background:var(--code-bg);color:var(--code-ink);border-radius:6px;padding:8px 12px;margin-top:12px}
+.result.err{color:var(--err)}
+.wnote{font-size:.9rem;color:var(--muted);margin-top:8px}
+.axisgrid{display:grid;gap:4px;justify-content:start;overflow-x:auto}
+.axisgrid .res{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600;font-size:.82rem;min-width:56px}
+input[type=range]{accent-color:var(--accent);width:200px;max-width:100%}
+
+/* quiz + exercise */
+.quiz{margin:22px 0;padding:16px 18px;border-left:3px solid var(--accent);background:var(--surface);border-radius:0 10px 10px 0}
+.quiz .q{font-weight:600;margin:0 0 8px}
+.quiz label{display:flex;gap:10px;align-items:flex-start;padding:5px 8px;border-radius:6px;cursor:pointer}
+.quiz label:hover{background:var(--accent-soft)}
+.quiz label code{white-space:pre}
+.quiz .fb{margin-top:8px;font-size:.95rem}
+.quiz .fb.ok{color:var(--ok)} .quiz .fb.no{color:var(--err)}
+.ex{margin:26px 0;border:1.5px solid var(--accent);border-radius:12px;background:var(--surface);overflow:hidden}
+.ex .exhead{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--accent-soft)}
+.ex .exhead b{font-family:var(--f-display);font-size:1.05rem}
+.ex .badge{margin-left:auto;font-size:.8rem;font-weight:700;color:var(--ok)}
+.ex .task{padding:4px 16px 0}
+.ex .cell{margin:10px 16px 14px}
+.ex .verdict{margin:0 16px 14px;padding:8px 12px;border-radius:6px;font-size:.95rem}
+.ex .verdict.ok{background:var(--ok-soft);color:var(--ok)}
+.ex .verdict.no{background:var(--err-soft);color:var(--err)}
+.ex details{margin:0 16px 16px;font-size:.95rem}
+.ex details pre{font-family:var(--f-mono);font-size:.84rem;background:var(--code-bg);color:var(--code-ink);padding:10px 14px;border-radius:6px;overflow-x:auto}
+.vid{margin:20px 0;display:flex;flex-direction:column;gap:8px}
+.vid video{display:block;width:100%;max-width:100%;aspect-ratio:16/9;border-radius:12px;border:1px solid var(--line);background:var(--code-bg)}
+.vid figcaption{font-size:.92rem;color:var(--muted)}
+.vid figcaption b{color:var(--accent);margin-right:6px;font-weight:700}
+.sumtab .ok{color:var(--ok);font-weight:600}
+.sumtab .todo{color:var(--muted)}
+table.cmp.sumtab td:first-child{font-family:var(--f-body);font-size:.95rem}
+.codeval{font-family:var(--f-mono);font-size:1.5rem;font-weight:600;letter-spacing:.06em;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:12px 16px;margin:6px 0 10px;overflow-x:auto;white-space:nowrap;user-select:all}
+details.verify{margin-top:28px;padding:12px 16px;border:1px dashed var(--line);border-radius:10px;font-size:.95rem}
+details.verify summary{cursor:pointer;color:var(--muted);font-weight:600}
+.callout{margin:16px 0;padding:12px 16px;background:var(--hi-soft);border-radius:8px;font-size:.96rem}
+footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--line);font-size:.9rem;color:var(--muted)}
+
+@media (max-width:860px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0}
+  nav.rail{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--bg);padding:10px 0;max-height:none;border-bottom:1px solid var(--line);margin:0 calc(-1 * max(16px, env(safe-area-inset-left, 0px)));padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--bg)}
+  .rail .course,.progress{display:none}
+  .rail ol{flex-direction:row;overflow-x:auto;margin:0;gap:4px;scrollbar-width:none}
+  .rail a{white-space:nowrap;font-size:.88rem;padding:5px 10px}
+  .rail .lbltext{display:none}
+  .rail .num{min-width:0}
+  header.hero{padding-top:24px}
+  body{font-size:16px}
+}
+@media (max-width:560px){
+  .cellbox{min-width:30px;height:34px;font-size:.82rem;border-radius:5px}
+  .idx{min-width:30px;font-size:.66rem}
+  .arr .row{gap:3px} .arr{gap:3px}
+  .axisgrid .res{min-width:44px;font-size:.74rem}
+  .widget{padding:14px 10px}
+  .cellbox{min-width:29px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<nav class="rail" aria-label="Sections">
+  <div class="course">Intro to Computing · Biophysics</div>
+  <ol id="toc"></ol>
+  <div class="progress"><span id="progtext">0 of 5 exercises done</span><div class="bar"><i id="progbar"></i></div></div>
+</nav>
+
+<main>
+<header class="hero" id="top">
+  <div class="eyebrow">Python 3 · Part 2 · Chapter 11</div>
+  <h1>NumPy arrays</h1>
+  <p class="lede">NumPy gives Python a fast N-dimensional array and the math to go with it. In this chapter you will create vectors and matrices, select parts of them, and analyze numeric data without writing loops.</p>
+  <div class="hero-array" id="heroArr"></div>
+  <div class="howto">
+    <span><b>Every grey code box is live.</b> Edit it, then press <b>Run</b> or <code>Ctrl</code>+<code>Enter</code>.</span>
+    <span>Python runs in your browser. Nothing to install.</span>
+    <button class="status" id="pyStatus" data-s="idle" type="button"><span class="dot"></span><span id="pyStatusText">Python starts on your first Run</span></button>
+  </div>
+</header>
+
+<!-- ============ INTRO ============ -->
+<section class="lesson" id="intro" data-title="Getting started" data-num="11.0">
+  <div class="secnum">11.0</div>
+  <h2>Why NumPy?</h2>
+  <p>NumPy is used across physics, chemistry, biology, astronomy, engineering and finance. It was part of the software used to detect gravitational waves and to make the first image of a black hole. Many datasets are simply arrays of numbers: a digital image is a 2D array of pixel brightness, and a sound clip is a 1D array of intensity versus time.</p>
+  <p>NumPy arrays are <b>homogeneous</b> (every element has the same type) and have a <b>fixed size</b>. Through <b>vectorization</b> they run much faster and use less memory than plain Python lists. In this course we focus on vectors (1D arrays) and matrices (2D arrays).</p>
+  <p>We import NumPy with its usual alias <code>np</code>, so we can write <code>np.</code> instead of <code>numpy.</code> everywhere:</p>
+  <div class="cell"><textarea>import numpy as np
+print(np.__version__)</textarea></div>
+  <p class="wnote">Every code box on this page already runs <code>import numpy as np</code> for you, but it is good practice to keep writing it. Further reading: <a href="https://numpy.org/doc/stable/user/basics.html" target="_blank" rel="noopener">NumPy fundamentals</a>.</p>
+</section>
+
+<!-- ============ 11.1 ============ -->
+<section class="lesson" id="s11-1" data-title="Arrays vs lists" data-num="11.1">
+  <div class="secnum">11.1</div>
+  <h2>NumPy arrays vs lists</h2>
+  <div class="tablewrap"><table class="cmp">
+    <thead><tr><th>type</th><th>items</th><th>mutability</th><th>size</th></tr></thead>
+    <tbody>
+      <tr><td>list</td><td>heterogeneous</td><td>mutable</td><td>can change</td></tr>
+      <tr><td>numpy.ndarray</td><td>homogeneous</td><td>mutable</td><td>fixed</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Type</h3>
+  <p>Convert a list into an <code>ndarray</code> with <code>np.array()</code>. Both print with square brackets, but list elements are separated by commas and array elements by spaces.</p>
+  <div class="cell"><textarea>import numpy as np
+L1 = [7, 2, 9, 10]
+print(L1)
+
+v1 = np.array(L1)   # converts a list to a 1D array
+print(v1)
+print(type(v1))</textarea></div>
+
+  <h3>Items and <code>dtype</code></h3>
+  <p>The <code>dtype</code> attribute tells you the type of the elements. Since an array is homogeneous, one float in the list turns every element into a float. Mix in a string and every element becomes a string (<code>&lt;U32</code>, a Unicode string). In this course we work with <code>int64</code>, <code>float64</code> and <code>bool</code> arrays.</p>
+  <div class="cell"><textarea>v1 = np.array([7, 2, 9, 10])
+print(v1, v1.dtype)
+
+v2 = np.array([7.2, 2, 9, 10])   # one float
+print(v2, v2.dtype)
+
+v3 = np.array([7.2, 2, 9, 10, 'pop'])   # one string
+print(v3, v3.dtype)</textarea></div>
+  <p class="wnote">Note: in this browser version of Python, integer arrays show <code>int32</code>. On your own computer (Spyder, IDLE) you will usually see <code>int64</code>. Both are integers, and nothing else changes.</p>
+  <p>A list is flexible because each element is a full Python object carrying its own type. An array stores one contiguous block of same-type numbers, which is far more efficient to store and compute with.</p>
+
+  <h3>Mutability and broadcasting</h3>
+  <p>Both lists and arrays are mutable, and you index and slice them with the same syntax. The difference shows up when you assign to a slice: a single value assigned to an array slice is <b>broadcast</b> (spread) to the whole selection.</p>
+  <div class="cell"><textarea>L1 = [7, 2, 9, 10]
+v1 = np.array(L1)
+
+L1[0] = 10
+v1[0] = 10
+print(L1, v1)
+
+L1[:3] = [0, 0, 0]   # a list needs one value per element
+v1[:3] = 0           # an array broadcasts the 0 to the whole slice
+print(L1, v1)</textarea></div>
+
+  <h3>Size</h3>
+  <p>A list can grow and shrink. An array cannot: <code>np.append()</code> returns a <b>new</b> array and leaves the original alone.</p>
+  <div class="cell"><textarea>L1 = [0, 0, 0, 10]
+L1.append(100)
+print(L1)
+
+v1 = np.array([0, 0, 0, 10])
+v2 = np.append(v1, [100])
+print(v1)   # unchanged
+print(v2)   # a new array</textarea></div>
+
+  <h3>High-performance array operations</h3>
+  <p><code>np.arange()</code> works like <code>range()</code> but returns an array. To cube every number, a list needs a loop or comprehension. An array just takes <code>**3</code>, applied to every element at once. This is <b>vectorization</b>. Many math functions such as <code>np.sqrt()</code> are built in, so you do not need the <code>math</code> module.</p>
+  <div class="cell"><textarea>import math
+L1 = list(range(10))
+v1 = np.arange(10)
+
+L2 = [i**3 for i in L1]           # list: comprehension
+v2 = v1**3                        # array: vectorized
+print(L2)
+print(v2)
+
+L3 = [math.sqrt(i) for i in L1]
+v3 = np.sqrt(v1)                  # no need to import math
+print(v3)</textarea></div>
+
+  <h3>Converting between lists and arrays</h3>
+  <p><code>np.array()</code> converts a list or tuple to an array, and a list of lists to a 2D array (note the double brackets). The optional <code>dtype</code> keyword forces the element type. Going back, the <code>.tolist()</code> method converts an array to a list.</p>
+  <div class="cell"><textarea>L2 = [[5.2, 3, 4], [9.1, 0.1, 0.3]]
+M = np.array(L2)          # list of lists -> 2D array
+print(M)
+
+T2 = (-1, 5, 7)
+v2 = np.array(T2, dtype=float)   # tuple of ints -> array of floats
+print(v2)
+
+print(M.tolist())         # 2D array -> list of lists</textarea></div>
+
+  <div class="quiz" data-answer="b">
+    <p class="q">What does <code>np.array([1, 2.5, 3]).dtype</code> return?</p>
+    <label><input type="radio" name="q1" value="a"> <span><code>int64</code>, because most elements are integers</span></label>
+    <label><input type="radio" name="q1" value="b"> <span><code>float64</code></span></label>
+    <label><input type="radio" name="q1" value="c"> <span>A mix of <code>int64</code> and <code>float64</code></span></label>
+    <div class="fb" data-ok="Right. Arrays are homogeneous, so one float makes every element a float." data-no="Not quite. An array has one dtype for all elements, and one float is enough to make them all float64."></div>
+  </div>
+
+  <div class="ex" data-ex="e1">
+    <div class="exhead"><b>Exercise 1 · Body temperatures</b><span class="badge"></span></div>
+    <div class="task"><p>Convert the list <code>temps</code> (°C) to a NumPy array called <code>t</code>. Then, without a loop, compute <code>t_f</code>, the same temperatures in Fahrenheit (°F = °C × 1.8 + 32).</p></div>
+    <div class="cell"><textarea>temps = [36.6, 37.2, 38.0, 36.9]
+t =
+t_f =
+print(t_f)</textarea></div>
+    <script type="text/plain" class="test">
+assert isinstance(t, np.ndarray), "t should be a NumPy array. Use np.array(temps)."
+assert np.allclose(t_f, np.array([36.6, 37.2, 38.0, 36.9])*1.8 + 32), "t_f has the wrong values. Try t*1.8 + 32."
+</script>
+    <details><summary>Show a solution</summary><pre>temps = [36.6, 37.2, 38.0, 36.9]
+t = np.array(temps)
+t_f = t*1.8 + 32
+print(t_f)</pre></details>
+  </div>
+</section>
+
+<!-- ============ 11.2 ============ -->
+<section class="lesson" id="s11-2" data-title="shape, size, axis" data-num="11.2">
+  <div class="secnum">11.2</div>
+  <h2>Attributes of an array: shape, size and axis</h2>
+  <div class="tablewrap"><table class="cmp">
+    <thead><tr><th>attribute</th><th>meaning</th></tr></thead>
+    <tbody>
+      <tr><td>ndarray.ndim</td><td>number of axes (dimensions)</td></tr>
+      <tr><td>ndarray.shape</td><td>tuple with the number of elements along each axis</td></tr>
+      <tr><td>ndarray.size</td><td>total number of elements</td></tr>
+      <tr><td>ndarray.dtype</td><td>type of the elements</td></tr>
+    </tbody>
+  </table></div>
+  <p>A 1D array (a <b>vector</b>) has one axis and a shape of the form <code>(n,)</code>. Nothing follows the comma because there is only one dimension. A 2D array (a <b>matrix</b>) has two axes and shape <code>(r, c)</code>: r rows and c columns. Don't confuse <code>size</code> (total count) with <code>shape</code>.</p>
+  <div class="cell"><textarea>v1 = np.array([1, 2, 9, 10])        # vector: one pair of brackets
+print(v1)
+print(v1.ndim, v1.size, v1.shape, v1.dtype)
+
+M = np.array([[5.2, 3, 4.5],
+              [9.1, 0.1, 0.3]])      # matrix: double brackets
+print(M)
+print(M.ndim, M.size, M.shape, M.dtype)</textarea></div>
+
+  <div class="quiz" data-answer="c">
+    <p class="q">A matrix has <code>shape (3, 4)</code>. What is its <code>size</code>?</p>
+    <label><input type="radio" name="q2" value="a"> <span><code>(3, 4)</code></span></label>
+    <label><input type="radio" name="q2" value="b"> <span><code>7</code></span></label>
+    <label><input type="radio" name="q2" value="c"> <span><code>12</code></span></label>
+    <label><input type="radio" name="q2" value="d"> <span><code>2</code></span></label>
+    <div class="fb" data-ok="Right. size is the total number of elements, 3 × 4 = 12. (ndim would be 2.)" data-no="Not quite. size counts every element: 3 rows × 4 columns."></div>
+  </div>
+</section>
+
+<!-- ============ 11.3 ============ -->
+<section class="lesson" id="s11-3" data-title="Creating arrays" data-num="11.3">
+  <div class="secnum">11.3</div>
+  <h2>Create arrays with built-in functions</h2>
+
+  <h3>11.3.1 Random numbers</h3>
+  <p><code>np.random.randint(low, high=None, size=None)</code> returns random integers in <code>[low, high)</code>. If <code>high</code> is omitted the range is <code>[0, low)</code>. The <code>size</code> sets the shape. Run these a few times: the numbers change every time.</p>
+  <div class="cell"><textarea>v  = np.random.randint(1, 10, size=10)       # 1D array (vector)
+M  = np.random.randint(5, size=(2, 4))       # 2D array (matrix)
+vr = np.random.randint(1, 10, size=(1, 3))   # row vector, shape (1, c)
+vc = np.random.randint(1, 10, size=(3, 1))   # column vector, shape (r, 1)
+print(v, v.ndim)
+print(M)
+print(vr)
+print(vc)</textarea></div>
+  <p><code>np.random.random(size)</code> returns random floats in the half-open interval <code>[0.0, 1.0)</code>.</p>
+  <div class="cell"><textarea>v1 = np.random.random(3)        # 1D array
+M1 = np.random.random((2, 3))   # 2D array
+print(v1)
+print(M1)</textarea></div>
+
+  <h3>11.3.2 <code>arange()</code>: you choose the step</h3>
+  <p><code>np.arange(stop)</code>, <code>np.arange(start, stop)</code> and <code>np.arange(start, stop, step)</code> produce values in <code>[start, stop)</code>. NumPy works out how many elements there are. Unlike <code>range()</code>, the step can be a float.</p>
+  <div class="cell"><textarea>print(np.arange(3))           # [0 1 2]
+print(np.arange(3, 7))        # [3 4 5 6]
+print(np.arange(1, 10, 2))    # [1 3 5 7 9]
+print(np.arange(1, 3, 0.3))   # floats
+print(np.arange(1, 3, 0.5))</textarea></div>
+
+  <h3>11.3.3 <code>linspace()</code>: you choose how many</h3>
+  <p><code>np.linspace(start, stop, num=N)</code> returns N evenly spaced numbers over the closed interval <code>[start, stop]</code> (50 by default). NumPy works out the step.</p>
+  <div class="cell"><textarea>a = np.linspace(0, 1)
+print(a.size)                         # 50 by default
+b = np.linspace(2.0, 3.0, num=5)
+print(b)</textarea></div>
+
+  <h3>11.3.4 <code>zeros()</code>, <code>ones()</code>, <code>eye()</code></h3>
+  <p>The tuple you pass sets the shape. Compare the matrix, column vector, row vector and 1D array below. Try changing <code>zeros</code> to <code>ones</code>, and try <code>np.eye(3)</code>, which makes an identity matrix.</p>
+  <div class="cell"><textarea>M  = np.zeros((2, 3))   # 2 rows, 3 columns
+vc = np.zeros((3, 1))   # column vector
+vr = np.zeros((1, 3))   # row vector
+v  = np.zeros((3,))     # 1D array with 3 elements
+print(M); print(vc); print(vr); print(v)
+print(np.eye(3))</textarea></div>
+  <p class="wnote">More creation functions: <a href="https://numpy.org/doc/stable/reference/routines.array-creation.html" target="_blank" rel="noopener">array creation routines</a>.</p>
+
+  <h3>11.3.5 Concatenation: <code>hstack()</code> and <code>vstack()</code></h3>
+  <p><code>np.hstack(tup)</code> stacks arrays side by side (column-wise). <code>np.vstack(tup)</code> stacks them on top of each other (row-wise). <code>tup</code> is a tuple or list of arrays. If one array is int and the other float, the result is float.</p>
+  <div class="cell"><textarea>A = np.ones((2, 3))
+B = np.random.randint(10, size=(2, 3))
+H = np.hstack([A, B])   # horizontal
+V = np.vstack([A, B])   # vertical
+print(H, H.shape)
+print(V, V.shape)</textarea></div>
+
+  <h3>11.3.6 <code>reshape()</code>, <code>transpose()</code>, <code>flatten()</code></h3>
+  <p><code>reshape</code> builds an array with a new shape from the same elements, so the size must match (10 elements can become (2, 5) but not (3, 3)). <code>transpose</code> swaps rows and columns. <code>flatten</code> returns a 1D array.</p>
+  <div class="cell"><textarea>v  = np.arange(1, 11)
+M  = np.reshape(v, (2, 5))   # also: v.reshape(2, 5)
+Mt = np.transpose(M)         # also: M.T
+v1 = M.flatten()
+print(M); print(Mt); print(v1)</textarea></div>
+
+  <div class="quiz" data-answer="a">
+    <p class="q">You need exactly 7 evenly spaced values from 0 to 3, including both ends. Which call?</p>
+    <label><input type="radio" name="q3" value="a"> <span><code>np.linspace(0, 3, num=7)</code></span></label>
+    <label><input type="radio" name="q3" value="b"> <span><code>np.arange(0, 3, 7)</code></span></label>
+    <label><input type="radio" name="q3" value="c"> <span><code>np.arange(0, 3, 0.5)</code></span></label>
+    <div class="fb" data-ok="Right. linspace fixes the number of elements and includes stop." data-no="Not quite. arange excludes the stop value and its third argument is a step. linspace(start, stop, num) is the one that fixes the count."></div>
+  </div>
+
+  <div class="ex" data-ex="e2">
+    <div class="exhead"><b>Exercise 2 · Build and reshape</b><span class="badge"></span></div>
+    <div class="task"><p>Use <code>np.arange</code> to create <code>v</code> = 5, 10, 15, …, 50 (ten numbers). Then reshape it into a matrix <code>M</code> with 2 rows and 5 columns.</p></div>
+    <div class="cell"><textarea>v =
+M =
+print(M)</textarea></div>
+    <script type="text/plain" class="test">
+assert isinstance(v, np.ndarray) and v.ndim == 1, "v should be a 1D array made with np.arange."
+assert np.array_equal(v, np.arange(5, 51, 5)), "v should be [ 5 10 ... 50]. Remember that stop is excluded: try np.arange(5, 51, 5)."
+assert M.shape == (2, 5), f"M has shape {M.shape}, but it should be (2, 5)."
+assert np.array_equal(M, np.arange(5, 51, 5).reshape(2, 5)), "M should contain the values of v, in order."
+</script>
+    <details><summary>Show a solution</summary><pre>v = np.arange(5, 51, 5)
+M = np.reshape(v, (2, 5))
+print(M)</pre></details>
+  </div>
+</section>
+
+<!-- ============ 11.4 ============ -->
+<section class="lesson" id="s11-4" data-title="Indexing" data-num="11.4">
+  <div class="secnum">11.4</div>
+  <h2>Indexing on ndarray</h2>
+  <p>Indexing selects a subset of an array with <code>arr[obj]</code>. What you put in <code>obj</code> decides the kind of indexing:</p>
+  <ul>
+    <li><b>Basic indexing:</b> a single element, or a slice</li>
+    <li><b>Advanced indexing:</b> integer arrays (fancy indexing), or Boolean arrays (masking, in 11.5)</li>
+  </ul>
+
+  <figure class="vid">
+    <video controls preload="metadata" playsinline poster="video/slicing.jpg" src="video/slicing.mp4"></video>
+    <figcaption><b>Watch · 2:00</b> Indexing and slicing in 1D and 2D, step by step. Narrated, with captions on screen.</figcaption>
+  </figure>
+
+  <h3>11.4.1 Basic indexing on a 1D array</h3>
+  <p>This works exactly like a list. Indices start at 0, and <code>-1</code> is the last element. A slice <code>start:end:step</code> stops <b>before</b> <code>end</code>.</p>
+  <div class="widget" id="w1d">
+    <div class="wtitle">Try it · 1D selector</div>
+    <div class="expr">arr1 = np.arange(1, 11)</div>
+    <div id="w1dArr"></div>
+    <div class="expr"><label for="w1dIn">arr1[</label><input id="w1dIn" value="3:8" spellcheck="false" autocomplete="off"><span>]</span></div>
+    <div class="chips" id="w1dChips"></div>
+    <div class="result" id="w1dOut"></div>
+    <div class="wnote">Type any index, slice (<code>1:8:2</code>, <code>::-1</code>) or list of indices (<code>[0,4,6]</code>).</div>
+  </div>
+  <div class="cell"><textarea>arr1 = np.arange(1, 11)
+print(arr1[0], arr1[-1])
+print(arr1[3:8])     # index 3 up to index 7
+print(arr1[5:])      # index 5 to the end
+print(arr1[:5])      # start up to index 4
+print(arr1[1:8:2])   # index 1 to 7, step 2</textarea></div>
+
+  <h3>11.4.2 Basic indexing on a 2D array</h3>
+  <p>A 2D array needs two indices, <code>arr[row, col]</code>. With one index you get a whole row. Slicing works per dimension: <code>arr2d[:, 1]</code> means "all rows, column 1". Selecting a column this way is how you pull a field out of a data table.</p>
+  <div class="widget" id="w2d">
+    <div class="wtitle">Try it · 2D selector</div>
+    <div class="expr">arr2d = np.array([[1,2,3,4], [5,6,7,8], [9,10,11,12]])</div>
+    <div id="w2dArr"></div>
+    <div class="expr"><label for="w2dIn">arr2d[</label><input id="w2dIn" value=":,1" spellcheck="false" autocomplete="off" style="width:18ch"><span>]</span></div>
+    <div class="chips" id="w2dChips"></div>
+    <div class="result" id="w2dOut"></div>
+  </div>
+  <div class="cell"><textarea>arr2d = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+print(arr2d[0, 0])      # same as arr2d[0][0]
+print(arr2d[-1])        # last row
+print(arr2d[:, 1])      # second column
+print(arr2d[0, ::2])    # first row, every other column
+print(arr2d[1:, 1:])    # a submatrix</textarea></div>
+
+  <h3>11.4.3 Integer array indexing (fancy indexing)</h3>
+  <p>Pass a list or array of indices to pick arbitrary elements. For a 2D array, pass two lists: one of row indices and one of column indices. They are paired up element by element, so <code>arr2d[[0,1,2], [1,3,1]]</code> selects (0,1), (1,3) and (2,1). Try it in the 2D selector above.</p>
+  <div class="cell"><textarea>arr1 = np.arange(1, 11)
+print(arr1[[0, 4, 6]])                 # list of indices
+print(arr1[np.array([0, 4, 6])])       # array of indices
+
+arr2d = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+print(arr2d[[0, 1, 2], [1, 3, 1]])     # rows list, columns list</textarea></div>
+
+  <h3>11.4.4 Replacing values</h3>
+  <p>Put the selection on the left of <code>=</code> to replace values: <code>arr[obj] = value</code>. The value must match the shape of the selection or be broadcastable to it. A single number is broadcast to the whole selection.</p>
+  <div class="cell"><textarea>arr1 = np.arange(1, 11)
+arr1[0] = 100
+print(arr1)
+
+arr1 = np.arange(1, 11)
+arr1[3:7] = 12                 # scalar broadcast to the slice
+print(arr1)
+
+arr1 = np.arange(1, 11)
+arr1[5:] = arr1[5:]**2
+print(arr1)
+
+arr2 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+arr2[[0, 1], [0, 1]] = [100, 200]   # same shape
+print(arr2)</textarea></div>
+  <p class="wnote">More on broadcasting: <a href="https://numpy.org/doc/stable/user/basics.broadcasting.html" target="_blank" rel="noopener">NumPy broadcasting</a>.</p>
+
+  <div class="quiz" data-answer="d">
+    <p class="q">For <code>arr2d</code> above, what is <code>arr2d[1:, 2]</code>?</p>
+    <label><input type="radio" name="q4" value="a"> <span><code>[5 6 7 8]</code></span></label>
+    <label><input type="radio" name="q4" value="b"> <span><code>[3 7 11]</code></span></label>
+    <label><input type="radio" name="q4" value="c"> <span><code>[[7 8] [11 12]]</code></span></label>
+    <label><input type="radio" name="q4" value="d"> <span><code>[ 7 11]</code></span></label>
+    <div class="fb" data-ok="Right. Rows from index 1 to the end, column index 2." data-no="Not quite. 1: means rows 1 and 2, and 2 means the third column. Check it in the 2D selector."></div>
+  </div>
+
+  <div class="ex" data-ex="e3">
+    <div class="exhead"><b>Exercise 3 · Pull out data</b><span class="badge"></span></div>
+    <div class="task"><p>Each row of <code>data</code> is one measurement: time (s), position (m), velocity (m/s). Store the <b>velocity column</b> in <code>vel</code>, and the <b>last two rows</b> in <code>last2</code>.</p></div>
+    <div class="cell"><textarea>data = np.array([[0.0, 0.0, 1.2],
+                 [0.5, 0.6, 1.1],
+                 [1.0, 1.1, 0.9],
+                 [1.5, 1.5, 0.6]])
+vel =
+last2 =
+print(vel)
+print(last2)</textarea></div>
+    <script type="text/plain" class="test">
+_d = np.array([[0.0,0.0,1.2],[0.5,0.6,1.1],[1.0,1.1,0.9],[1.5,1.5,0.6]])
+assert np.array_equal(vel, _d[:, 2]), "vel should be the third column: data[:, 2]."
+assert np.array_equal(last2, _d[-2:]), "last2 should be the last two rows: data[2:] or data[-2:]."
+</script>
+    <details><summary>Show a solution</summary><pre>vel = data[:, 2]
+last2 = data[-2:]     # or data[2:, :]</pre></details>
+  </div>
+</section>
+
+<!-- ============ 11.5 ============ -->
+<section class="lesson" id="s11-5" data-title="Vectorization" data-num="11.5">
+  <div class="secnum">11.5</div>
+  <h2>Vectorization</h2>
+  <p>Rewriting loop-based code as whole-array operations is called <b>vectorization</b>. Vectorized code reads like the formulas in a textbook, has fewer lines (and fewer bugs), and usually runs much faster. Fortran, R and MATLAB work the same way.</p>
+
+  <h3>11.5.1 Array operations</h3>
+  <p><code>+ - * / **</code> between equal-shape arrays work <b>element by element</b>. With a scalar, the scalar is broadcast to every element. Note that <code>*</code> is element-wise multiplication, not matrix multiplication.</p>
+  <div class="cell"><textarea>A = np.ones((2, 3))
+B = np.random.randint(10, size=(2, 3))
+print(B * 2)
+print(A + B)     # float + int -> float</textarea></div>
+  <p>Converting 10 (or 10,000) Fahrenheit readings to Celsius with <code>Tc = (Tf − 32) / 1.8</code> is one line:</p>
+  <div class="cell"><textarea>Tf = [10.0, 30, 4, 100.7, 89, 89, 87.6, 60.7, 45.3, 100]
+Tv = np.array(Tf)
+Tc = (Tv - 32) / 1.8
+print(Tc.round(2))</textarea></div>
+
+  <h3>11.5.2 Universal functions (ufuncs)</h3>
+  <p>A <b>ufunc</b> applies a math function to every element without a loop: <code>np.sqrt</code>, <code>np.exp</code>, <code>np.sin</code>, <code>np.cos</code>, <code>np.log</code>, <code>np.log10</code>, <code>np.power</code> and <a href="https://numpy.org/doc/stable/reference/ufuncs.html#math-operations" target="_blank" rel="noopener">many more</a>.</p>
+  <div class="cell"><textarea>a = np.arange(1, 4)
+print(np.sqrt(a))
+print(np.power(a, 2))
+print(np.exp(a))</textarea></div>
+
+  <h3>11.5.3 Boolean arrays and masking</h3>
+  <figure class="vid">
+    <video controls preload="metadata" playsinline poster="video/masks.jpg" src="video/masks.mp4"></video>
+    <figcaption><b>Watch · 1:23</b> Boolean masks, AND / OR, <code>np.where()</code>, and replacing values. Narrated, with captions on screen.</figcaption>
+  </figure>
+  <p>A comparison (<code>&gt; &gt;= &lt; &lt;= == !=</code>) applied to an array returns a <b>Boolean array</b> of the same shape: True where the condition holds. Use that Boolean array as an index and NumPy keeps only the True positions. This is called <b>Boolean masking</b>, and it is the standard way to extract, count or replace values that meet a condition.</p>
+  <div class="widget" id="wmask">
+    <div class="wtitle">Try it · Boolean mask</div>
+    <div class="expr"><span>bool1 = arr1</span>
+      <select id="wmOp" aria-label="Comparison operator"><option>&gt;=</option><option>&gt;</option><option>&lt;</option><option>&lt;=</option><option>==</option><option>!=</option></select>
+      <input type="range" id="wmVal" min="0" max="11" value="6" aria-label="Comparison value"><b id="wmValTxt">6</b>
+    </div>
+    <div id="wmArr"></div>
+    <div class="result" id="wmOut"></div>
+  </div>
+  <div class="cell"><textarea>arr1 = np.arange(1, 11)
+bool1 = arr1 >= 6
+print(bool1)
+
+v = arr1[bool1]          # extract the True elements
+print(v, v.ndim)         # always a 1D array
+
+arr1[bool1] = arr1[bool1] * 10   # replace the True elements
+print(arr1)</textarea></div>
+
+  <p><b>Example: cleaning measurements.</b> You measured 7 cones, but some diameters are negative, which is impossible. A mask finds the valid ones, counts them, and selects the matching volumes. A second mask fixes the bad values with <code>np.abs()</code>.</p>
+  <div class="cell"><textarea>V = np.array([0.0004, 0.2618, 1.3254, 21.2058, 0.2618, 81.4640, 25.4500])
+D = np.array([-0.2, 1.0, 1.5, 3.0, -1.0, 4.2, 3.14])
+
+b1 = D > 0
+print(b1)
+D1 = D[b1]
+print(D1)
+print('There are', D1.size, 'valid cones')
+print(V[b1])                   # volumes of the valid cones
+
+vn = D < 0
+D[vn] = np.abs(D[vn])          # make negative diameters positive
+print(D)</textarea></div>
+
+  <p><b>Comparing two arrays.</b> <code>A &lt; B</code> compares element by element. Indexing with the result returns the matching values as a 1D array.</p>
+  <div class="cell"><textarea>A = np.array([[1, 2, 6], [4, 3, 6]])
+B = np.array([[0, 3, 7], [3, 7, 5]])
+ind = A < B
+print(ind)
+print(A[ind], A[ind].ndim)</textarea></div>
+
+  <h3>Combining conditions: AND, OR</h3>
+  <p>Use <code>np.logical_and</code> / <code>np.logical_or</code>, or the operators <code>&amp;</code> and <code>|</code>. With the operators, <b>put each condition in parentheses</b>. Values inside an interval usually need AND, and values outside an interval need OR.</p>
+  <div class="cell"><textarea>arr1 = np.arange(1, 11)
+
+bool2 = (arr1 >= 5) & (arr1 < 8)      # same as np.logical_and(arr1 >= 5, arr1 < 8)
+print(arr1[bool2])                    # inside [5, 8)
+
+bool3 = (arr1 <= 3) | (arr1 > 9)      # same as np.logical_or(arr1 <= 3, arr1 > 9)
+print(arr1[bool3])                    # outside (3, 9]</textarea></div>
+
+  <h3>Conditional values with <code>np.where()</code></h3>
+  <p><code>np.where(condition, value_if_true, value_if_false)</code> builds a <b>new</b> array, choosing one of the two values for each element. The original array is unchanged. Boolean assignment (<code>arr2[bool1] = 0</code>) modifies the original instead.</p>
+  <div class="cell"><textarea>arr2 = np.array([[1, 2, 3, 4],
+                 [5, 6, 7, 8]])
+bool1 = (arr2 <= 2) | (arr2 > 6)
+new_arr = np.where(bool1, 0, arr2)
+print(new_arr)
+print(arr2)          # unchanged
+
+T = np.array([18, 22, 28, 35, 20])
+status = np.where((T >= 20) & (T <= 30), "Normal", "Outside")
+print(status)</textarea></div>
+
+  <div class="quiz" data-answer="b">
+    <p class="q">Why does <code>arr1 &gt; 2 &amp; arr1 &lt; 8</code> fail, while <code>(arr1 &gt; 2) &amp; (arr1 &lt; 8)</code> works?</p>
+    <label><input type="radio" name="q5" value="a"> <span><code>&amp;</code> only works on lists</span></label>
+    <label><input type="radio" name="q5" value="b"> <span><code>&amp;</code> runs before the comparisons, so Python evaluates <code>2 &amp; arr1</code> first</span></label>
+    <label><input type="radio" name="q5" value="c"> <span>You must use <code>and</code> instead</span></label>
+    <div class="fb" data-ok="Right. & has higher precedence than > and <, so the parentheses are required. (Plain 'and' raises an error on arrays.)" data-no="Not quite. It's operator precedence: & binds tighter than the comparisons. Try both versions in a code box."></div>
+  </div>
+
+  <div class="ex" data-ex="e4">
+    <div class="exhead"><b>Exercise 4 · Filter heart rates</b><span class="badge"></span></div>
+    <div class="task"><p><code>hr</code> holds heart-rate readings (beats/min). Readings of 0 or below are sensor errors. Store the valid readings in <code>valid</code> and how many there are in <code>n_valid</code>. Then make <code>label</code>, an array with <code>"high"</code> where a reading is above 100 and <code>"ok"</code> elsewhere (use all of <code>hr</code>).</p></div>
+    <div class="cell"><textarea>hr = np.array([72, -1, 88, 105, 0, 64, 120, 95])
+valid =
+n_valid =
+label =
+print(valid, n_valid)
+print(label)</textarea></div>
+    <script type="text/plain" class="test">
+_hr = np.array([72, -1, 88, 105, 0, 64, 120, 95])
+assert np.array_equal(valid, _hr[_hr > 0]), "valid should keep only readings > 0. Try hr[hr > 0]."
+assert int(n_valid) == 6, f"n_valid is {n_valid}, but there are 6 valid readings. Try valid.size."
+assert list(label) == list(np.where(_hr > 100, "high", "ok")), 'label should be np.where(hr > 100, "high", "ok").'
+</script>
+    <details><summary>Show a solution</summary><pre>valid = hr[hr > 0]
+n_valid = valid.size
+label = np.where(hr > 100, "high", "ok")</pre></details>
+  </div>
+</section>
+
+<!-- ============ 11.6 ============ -->
+<section class="lesson" id="s11-6" data-title="Data analysis functions" data-num="11.6">
+  <div class="secnum">11.6</div>
+  <h2>Built-in functions for data analysis</h2>
+  <p>Most analysis functions share one form: <code>B = np.function(A, axis=n)</code>.</p>
+  <ul>
+    <li><code>axis=0</code>: work down each <b>column</b> (across all rows). One result per column.</li>
+    <li><code>axis=1</code>: work along each <b>row</b> (across all columns). One result per row.</li>
+    <li>No axis: use every element and return a single number. For a 1D array you normally leave the axis out.</li>
+  </ul>
+  <figure class="vid">
+    <video controls preload="metadata" playsinline poster="video/axis.jpg" src="video/axis.mp4"></video>
+    <figcaption><b>Watch · 1:22</b> Which way <code>axis=0</code> and <code>axis=1</code> go, with <code>sum</code>, <code>max</code>, <code>argmin</code> and <code>mean</code>. Narrated, with captions on screen.</figcaption>
+  </figure>
+  <div class="widget" id="waxis">
+    <div class="wtitle">Try it · Axis explorer</div>
+    <div class="expr">
+      <span>np.</span><select id="waFn" aria-label="Function"><option>min</option><option>max</option><option>argmin</option><option>argmax</option><option>sum</option><option>mean</option></select><span>(M, axis=</span><select id="waAx" aria-label="Axis"><option>0</option><option selected>1</option><option>None</option></select><span>)</span>
+    </div>
+    <div id="waGrid"></div>
+    <div class="result" id="waOut"></div>
+    <div class="wnote" id="waNote"></div>
+  </div>
+
+  <h3>Maximum and minimum: <code>max</code>, <code>min</code>, <code>argmax</code>, <code>argmin</code></h3>
+  <p><code>np.min</code> and <code>np.max</code> return the values. <code>np.argmin</code> and <code>np.argmax</code> return their <b>indices</b>, counted from 0 within each row or column.</p>
+  <div class="cell"><textarea>M = np.array([[1, 2, 3, 4], [8, 6, 0, 9], [9, 2, 3, 12]])
+print(np.min(M, axis=1))      # minimum of each row
+print(np.argmin(M, axis=1))   # where it is in each row
+
+v1 = np.array([22, 38, 30, 40, 18, 1])
+print(np.min(v1), np.argmin(v1))   # 1D: no axis needed</textarea></div>
+
+  <h3>Sorting: <code>sort</code>, <code>argsort</code></h3>
+  <p><code>np.sort</code> returns a sorted copy (ascending). <code>np.argsort</code> returns the indices that would sort the array, which is useful for reordering a second array to match.</p>
+  <div class="cell"><textarea>M = np.array([[1, 2, 3, 4], [8, 6, 0, 9], [9, 2, 3, 12]])
+print(np.sort(M, axis=0))      # sort each column
+print(np.argsort(M, axis=0))
+
+v1 = np.array([22, 38, 30, 40, 18, 1])
+print(np.sort(v1))
+print(np.argsort(v1))</textarea></div>
+
+  <h3>Statistics: <code>mean</code>, <code>std</code></h3>
+  <div class="cell"><textarea>M = np.array([[1, 2, 3, 4], [8, 6, 0, 9], [9, 2, 3, 12]])
+print(np.mean(M, axis=0))   # mean of each column
+print(np.std(M, axis=1))    # standard deviation of each row</textarea></div>
+  <p class="wnote">More: <a href="https://numpy.org/doc/stable/reference/routines.statistics.html" target="_blank" rel="noopener">statistics routines</a>.</p>
+
+  <h3>Sums: <code>sum</code>, <code>cumsum</code></h3>
+  <div class="cell"><textarea>M = np.array([[1, 2, 3, 4], [8, 6, 0, 9], [9, 2, 3, 12]])
+print(np.sum(M, axis=0))      # sum of each column
+print(np.cumsum(M, axis=1))   # running total along each row</textarea></div>
+  <p class="wnote">More: <a href="https://numpy.org/doc/stable/reference/routines.math.html" target="_blank" rel="noopener">math routines</a>.</p>
+
+  <div class="ex" data-ex="e5">
+    <div class="exhead"><b>Exercise 5 · Lab scores</b><span class="badge"></span></div>
+    <div class="task"><p>Each row of <code>scores</code> is a student and each column a lab. Compute <code>lab_means</code>, the mean of each lab (one value per column). Then find <code>best</code>, the row index of the student with the highest total.</p></div>
+    <div class="cell"><textarea>scores = np.array([[78, 85, 90],
+                   [92, 88, 79],
+                   [65, 70, 95],
+                   [88, 94, 91]])
+lab_means =
+best =
+print(lab_means)
+print(best)</textarea></div>
+    <script type="text/plain" class="test">
+_s = np.array([[78,85,90],[92,88,79],[65,70,95],[88,94,91]])
+assert np.shape(lab_means) == (3,), f"lab_means should hold 3 values (one per lab), but has shape {np.shape(lab_means)}. Which axis goes down the columns?"
+assert np.allclose(lab_means, _s.mean(axis=0)), "lab_means has the wrong values. Use np.mean(scores, axis=0)."
+assert int(best) == 3, f"best is {best}. Add up each row with np.sum(scores, axis=1), then use np.argmax."
+</script>
+    <details><summary>Show a solution</summary><pre>lab_means = np.mean(scores, axis=0)
+best = np.argmax(np.sum(scores, axis=1))</pre></details>
+  </div>
+</section>
+
+<!-- ============ 11.7 ============ -->
+<section class="lesson" id="s11-7" data-title="Import & export" data-num="11.7">
+  <div class="secnum">11.7</div>
+  <h2>Import and export an array</h2>
+
+  <h3>11.7.1 <code>loadtxt()</code></h3>
+  <p><code>A = np.loadtxt(filename, delimiter='sep')</code> reads a file of numbers (comment lines starting with <code>#</code> are skipped) into a 2D array. If the fields are not separated by spaces, give the <code>delimiter</code>. Then slice out the columns you need.</p>
+  <div class="callout">This page includes the course file <code>ph.dat</code> (the same one as on Canvas): two space-separated columns, with pH in the first and the measured value <code>p</code> in the second.</div>
+  <div class="cell"><textarea>print(open('ph.dat').read())    # look at the file first
+
+dat = np.loadtxt('ph.dat')       # fields are separated by spaces
+ph = dat[:, 0]
+p  = dat[:, 1]
+print(dat.shape)
+print(ph)
+print(p)</textarea></div>
+  <p class="wnote">Options for dtype, skipped rows and more: <a href="https://numpy.org/doc/stable/reference/generated/numpy.loadtxt.html" target="_blank" rel="noopener">numpy.loadtxt</a>.</p>
+
+  <h3>11.7.2 <code>savetxt()</code></h3>
+  <p><code>np.savetxt(filename, X, fmt='format', delimiter='sep')</code> writes an array to a text file. Without <code>fmt</code> and <code>delimiter</code> it uses <code>%.18e</code> and spaces. Here we save, then read the file back to see what was written.</p>
+  <div class="cell"><textarea>M = np.array([[1, 2, 3, 4], [8, 6, 0, 9], [9, 2, 3, 12]])
+
+np.savetxt('file1.txt', M, fmt='%d', delimiter=':')
+print(open('file1.txt').read())
+
+np.savetxt('file1.csv', M, fmt='%.1f', delimiter=',')
+print(open('file1.csv').read())</textarea></div>
+  <p class="wnote">Headers and comments: <a href="https://numpy.org/doc/stable/reference/generated/numpy.savetxt.html" target="_blank" rel="noopener">numpy.savetxt</a>. Files written here live only in this browser tab.</p>
+</section>
+
+<!-- ============ 11.8 ============ -->
+<section class="lesson" id="s11-8" data-title="Looping" data-num="11.8">
+  <div class="secnum">11.8</div>
+  <h2>Looping over ndarrays</h2>
+  <p>Arrays are iterable, so the usual <code>for</code> loop works. On a 2D array, a single loop goes over the <b>rows</b>. To reach every element you need nested loops.</p>
+  <div class="cell"><textarea>arr = np.array([1, 2, 3])
+for x in arr:
+    print(x)
+
+arr = np.array([[1, 2, 3], [4, 5, 6]])
+for x in arr:          # rows
+    print(x)
+
+for x in arr:          # every element
+    for y in x:
+        print(y, end=' ')</textarea></div>
+  <p>With many dimensions, nested loops get unwieldy. <code>np.nditer()</code> visits every element one by one, whatever the dimension. For index-value pairs, use <code>np.ndenumerate()</code>, the NumPy version of <code>enumerate()</code>.</p>
+  <div class="cell"><textarea>arr3 = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])   # a 3D array
+for x in np.nditer(arr3):
+    print(x, end=' ')
+print()
+
+arr = np.array([[1, 2, 3], [4, 5, 6]])
+for idx, val in np.ndenumerate(arr):
+    print(idx, val)</textarea></div>
+  <p class="wnote">Docs: <a href="https://numpy.org/doc/stable/reference/arrays.nditer.html" target="_blank" rel="noopener">nditer</a> · <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndenumerate.html" target="_blank" rel="noopener">ndenumerate</a>. In practice, prefer vectorized operations to loops whenever you can.</p>
+
+  <div class="quiz" data-answer="c">
+    <p class="q">You want the mean of each row of a 100 × 5 array <code>A</code>. The most NumPy-like way is…</p>
+    <label><input type="radio" name="q6" value="a"> <span>a <code>for</code> loop over rows, adding values one by one</span></label>
+    <label><input type="radio" name="q6" value="b"> <span><code>np.mean(A, axis=0)</code></span></label>
+    <label><input type="radio" name="q6" value="c"> <span><code>np.mean(A, axis=1)</code></span></label>
+    <div class="fb" data-ok="Right. One vectorized call, one result per row (100 values)." data-no="Not quite. axis=0 gives one value per column (5 values). For one value per row, use axis=1, and no loop is needed."></div>
+  </div>
+</section>
+
+<footer>
+  Based on <i>Python3 – part2</i> course notes, Chapter 11, Introduction to Computing, Biophysics, JHU. Code runs locally in your browser with Pyodide and NumPy 2.2. Progress is saved in this browser only.
+</footer>
+</main>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const store = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+
+/* ---------- TOC + progress ---------- */
+const toc = $('#toc');
+const sections = $$('section.lesson');
+sections.forEach(s => {
+  const li = document.createElement('li');
+  const exs = $$('.ex', s).map(e => e.dataset.ex);
+  li.innerHTML = `<a href="#${s.id}" data-sec="${s.id}"><span class="num">${s.dataset.num}</span><span class="lbltext">${s.dataset.title}</span><span class="done" data-exs="${exs.join(',')}"></span></a>`;
+  toc.appendChild(li);
+});
+const tocLinks = $$('a', toc);
+const io = new IntersectionObserver(ents => {
+  ents.forEach(e => { if (e.isIntersecting) {
+    tocLinks.forEach(a => a.classList.toggle('active', a.dataset.sec === e.target.id));
+    const act = tocLinks.find(a => a.dataset.sec === e.target.id);
+    if (act && window.matchMedia('(max-width:860px)').matches) act.scrollIntoView({block:'nearest', inline:'center'});
+  }});
+}, {rootMargin:'-30% 0px -65% 0px'});
+sections.forEach(s => io.observe(s));
+
+let done = store.get('np11-done') || {};
+let quiz = store.get('np11-quiz') || {};
+function refreshProgress(){
+  const all = $$('.ex').map(e => e.dataset.ex);
+  const n = all.filter(id => done[id]).length;
+  const qn = $$('.quiz').filter(q => quiz[qName(q)] && quiz[qName(q)].ok).length, qt = $$('.quiz').length;
+  $('#progtext').textContent = `${n + qn} of ${all.length + qt} items done`;
+  $('#progbar').style.width = (100*(n+qn)/(all.length+qt)) + '%';
+  renderSummary();
+  $$('.ex').forEach(e => { $('.badge', e).textContent = done[e.dataset.ex] ? '✓ Done' : ''; });
+  $$('.done', toc).forEach(d => {
+    const ids = d.dataset.exs ? d.dataset.exs.split(',') : [];
+    d.textContent = ids.length && ids.every(i => done[i]) ? '✓' : '';
+  });
+}
+
+/* ---------- Hero array ---------- */
+function cellsRow(vals, opts={}){
+  const row = document.createElement('div'); row.className = 'row';
+  vals.forEach((v,i) => { const c = document.createElement('div'); c.className = 'cellbox' + (opts.cls ? ' '+opts.cls(i,v) : ''); c.textContent = v; row.appendChild(c); });
+  if (opts.label){ const l = document.createElement('div'); l.className='lbl'; l.textContent = opts.label; row.appendChild(l); }
+  return row;
+}
+function idxRow(n, label){
+  const row = document.createElement('div'); row.className='row';
+  for (let i=0;i<n;i++){ const c=document.createElement('div'); c.className='idx'; c.textContent=i; row.appendChild(c); }
+  if (label){ const l=document.createElement('div'); l.className='lbl'; l.textContent=label; row.appendChild(l); }
+  return row;
+}
+(function hero(){
+  const h = $('#heroArr'); const a = document.createElement('div'); a.className='arr';
+  const sel = new Set([1,3,5,7]);
+  a.appendChild(cellsRow([1,2,3,4,5,6,7,8,9,10], {cls:(i)=> sel.has(i)?'sel':'', label:'arr1[1:8:2]'}));
+  a.appendChild(idxRow(10,'indices'));
+  h.appendChild(a);
+})();
+
+/* ---------- numpy-like formatting ---------- */
+function fmtNum(x, d){ return d===0 ? String(x) : x.toFixed(d).replace(/0+$/,''); }
+function fmtArr(arr){
+  // arr: number[] or number[][]
+  const flat = Array.isArray(arr[0]) ? arr.flat() : arr;
+  const isFloat = flat.some(v => typeof v === 'number' && !Number.isInteger(v)) || arr.__float;
+  let d = 0;
+  if (isFloat){
+    d = 0;
+    flat.forEach(v => { const s = (+v.toFixed(8)).toString(); const k = s.includes('.') ? s.split('.')[1].length : 0; d = Math.max(d,k); });
+    d = Math.max(d,1);
+  }
+  const strs = flat.map(v => isFloat ? (Number.isInteger(+v.toFixed(8)) ? (+v.toFixed(0)) + '.' : fmtNum(v,d)) : String(v));
+  const w = Math.max(...strs.map(s=>s.length));
+  const pad = s => isFloat ? s.padEnd(w) : s.padStart(w);
+  if (!Array.isArray(arr[0])) return '[' + strs.map(pad).join(' ') + ']';
+  let k=0; const rows = arr.map(r => '[' + r.map(()=>pad(strs[k++])).join(' ') + ']');
+  return '[' + rows.join('\n ') + ']';
+}
+
+/* ---------- index parsing (1D/2D widgets) ---------- */
+function parseIdx(s, n){
+  s = s.trim();
+  if (s === '') throw new Error('empty index');
+  if (s.startsWith('[')){
+    if (!s.endsWith(']')) throw new Error('missing ]');
+    const inner = s.slice(1,-1).trim();
+    const list = inner === '' ? [] : inner.split(',').map(t => { if(!/^-?\d+$/.test(t.trim())) throw new Error('lists must contain integers'); return norm(parseInt(t,10), n); });
+    return {kind:'list', idx:list};
+  }
+  if (s.includes(':')){
+    const parts = s.split(':');
+    if (parts.length > 3) throw new Error('too many colons');
+    const num = t => { t=t.trim(); if (t==='') return null; if(!/^-?\d+$/.test(t)) throw new Error(`"${t}" is not an integer`); return parseInt(t,10); };
+    const start=num(parts[0]), stop=num(parts[1]??''), step=parts.length===3?num(parts[2]):null;
+    return {kind:'slice', idx: sliceIdx(start,stop,step===null?1:step,n)};
+  }
+  if (!/^-?\d+$/.test(s)) throw new Error(`"${s}" is not an integer index`);
+  return {kind:'int', idx:[norm(parseInt(s,10), n)]};
+}
+function norm(i, n){ const j = i<0 ? i+n : i; if (j<0||j>=n) throw new Error(`index ${i} is out of bounds for size ${n}`); return j; }
+function sliceIdx(start, stop, step, n){
+  if (step === 0) throw new Error('slice step cannot be zero');
+  const out=[];
+  if (step>0){
+    let a = start===null?0:(start<0?Math.max(start+n,0):Math.min(start,n));
+    let b = stop===null?n:(stop<0?Math.max(stop+n,0):Math.min(stop,n));
+    for(let i=a;i<b;i+=step) out.push(i);
+  } else {
+    let a = start===null?n-1:(start<0?Math.max(start+n,-1):Math.min(start,n-1));
+    let b = stop===null?-1:(stop<0?Math.max(stop+n,-1):Math.min(stop,n-1));
+    for(let i=a;i>b;i+=step) out.push(i);
+  }
+  return out;
+}
+function splitTop(s){ // split on top-level commas
+  const out=[]; let depth=0, cur='';
+  for (const ch of s){ if(ch==='[')depth++; if(ch===']')depth--; if(ch===','&&depth===0){out.push(cur);cur='';} else cur+=ch; }
+  out.push(cur); return out;
+}
+
+/* 1D widget */
+(function(){
+  const vals=[1,2,3,4,5,6,7,8,9,10];
+  const box=$('#w1dArr'), inp=$('#w1dIn'), out=$('#w1dOut'), chips=$('#w1dChips');
+  ['0','-1','3:8','5:',':5','1:8:2','::-1','[0,4,6]'].forEach(c=>{
+    const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=`arr1[${c}]`;
+    b.onclick=()=>{inp.value=c; draw();}; chips.appendChild(b);
+  });
+  function draw(){
+    let sel=new Set(), txt='', err=false;
+    try{
+      const r=parseIdx(inp.value, vals.length);
+      r.idx.forEach(i=>sel.add(i));
+      txt = r.kind==='int' ? String(vals[r.idx[0]]) : fmtArr(r.idx.map(i=>vals[i]));
+      if (r.kind==='slice' && r.idx.length===0) txt='[]   (empty selection)';
+    }catch(e){ txt='IndexError: '+e.message; err=true; }
+    box.innerHTML=''; const a=document.createElement('div'); a.className='arr';
+    a.appendChild(cellsRow(vals,{cls:i=>sel.has(i)?'sel':'', label:'arr1'})); a.appendChild(idxRow(10,'indices')); box.appendChild(a);
+    out.textContent = txt; out.classList.toggle('err',err);
+  }
+  inp.addEventListener('input',draw); draw();
+})();
+
+/* 2D widget */
+(function(){
+  const M=[[1,2,3,4],[5,6,7,8],[9,10,11,12]], R=3, C=4;
+  const box=$('#w2dArr'), inp=$('#w2dIn'), out=$('#w2dOut'), chips=$('#w2dChips');
+  ['0,0','-1',':,1','0,:','0,::2','1:,1:','[0,1,2],[1,3,1]','[0,2]'].forEach(c=>{
+    const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=`arr2d[${c}]`;
+    b.onclick=()=>{inp.value=c; draw();}; chips.appendChild(b);
+  });
+  function draw(){
+    const sel=new Set(); let txt='', err=false;
+    try{
+      const parts=splitTop(inp.value);
+      if (parts.length>2) throw new Error('too many indices for a 2D array');
+      const r=parseIdx(parts[0],R);
+      const c= parts.length===2 ? parseIdx(parts[1],C) : {kind:'slice', idx:[0,1,2,3]};
+      if (r.kind==='list' && c.kind==='list'){
+        if (r.idx.length!==c.idx.length) throw new Error(`shape mismatch: ${r.idx.length} row indices but ${c.idx.length} column indices`);
+        const v=r.idx.map((ri,k)=>{sel.add(ri+','+c.idx[k]); return M[ri][c.idx[k]];});
+        txt=fmtArr(v);
+      } else {
+        r.idx.forEach(ri=>c.idx.forEach(ci=>sel.add(ri+','+ci)));
+        const rowScalar=r.kind==='int', colScalar=c.kind==='int';
+        if (rowScalar && colScalar) txt=String(M[r.idx[0]][c.idx[0]]);
+        else if (rowScalar) txt=fmtArr(c.idx.map(ci=>M[r.idx[0]][ci]));
+        else if (colScalar) txt=fmtArr(r.idx.map(ri=>M[ri][c.idx[0]]));
+        else { const m=r.idx.map(ri=>c.idx.map(ci=>M[ri][ci])); txt = m.length && m[0].length ? fmtArr(m) : '[]   (empty selection)'; }
+        const shape = rowScalar&&colScalar ? 'a single value' : rowScalar||colScalar ? `1D array, shape (${rowScalar?c.idx.length:r.idx.length},)` : `2D array, shape (${r.idx.length}, ${c.idx.length})`;
+        txt += `\n# ${shape}`;
+      }
+    }catch(e){ txt='IndexError: '+e.message; err=true; }
+    box.innerHTML=''; const a=document.createElement('div'); a.className='arr';
+    const hdr=document.createElement('div'); hdr.className='row';
+    const sp=document.createElement('div'); sp.className='idx'; sp.style.minWidth='28px'; hdr.appendChild(sp);
+    for(let j=0;j<C;j++){const d=document.createElement('div'); d.className='idx'; d.textContent=j; hdr.appendChild(d);}
+    const cl=document.createElement('div'); cl.className='lbl'; cl.textContent='← column index'; hdr.appendChild(cl);
+    a.appendChild(hdr);
+    M.forEach((row,i)=>{
+      const rr=cellsRow(row,{cls:j=>sel.has(i+','+j)?'sel':''});
+      const ri=document.createElement('div'); ri.className='idx'; ri.style.minWidth='28px'; ri.style.alignSelf='center'; ri.textContent=i;
+      rr.prepend(ri); a.appendChild(rr);
+    });
+    box.appendChild(a);
+    out.textContent=txt; out.classList.toggle('err',err);
+  }
+  inp.addEventListener('input',draw); draw();
+})();
+
+/* mask widget */
+(function(){
+  const vals=[1,2,3,4,5,6,7,8,9,10];
+  const op=$('#wmOp'), val=$('#wmVal'), vt=$('#wmValTxt'), box=$('#wmArr'), out=$('#wmOut');
+  const f={'>=':(a,b)=>a>=b,'>':(a,b)=>a>b,'<':(a,b)=>a<b,'<=':(a,b)=>a<=b,'==':(a,b)=>a===b,'!=':(a,b)=>a!==b};
+  function draw(){
+    const o=op.value, v=+val.value; vt.textContent=v;
+    const m=vals.map(x=>f[o](x,v));
+    box.innerHTML=''; const a=document.createElement('div'); a.className='arr';
+    a.appendChild(cellsRow(vals,{cls:i=>m[i]?'sel':'', label:'arr1'}));
+    a.appendChild(cellsRow(m.map(b=>b?'T':'F'),{cls:i=>m[i]?'t':'f', label:'bool1'}));
+    box.appendChild(a);
+    const kept=vals.filter((x,i)=>m[i]);
+    out.textContent = `bool1 = arr1 ${o} ${v}\n${'['+m.map(b=>b?' True':'False').join(' ')+']'}\n\narr1[bool1]\n${kept.length?fmtArr(kept):'[]'}\n\narr1[bool1].size\n${kept.length}`;
+  }
+  op.addEventListener('change',draw); val.addEventListener('input',draw); draw();
+})();
+
+/* axis widget */
+(function(){
+  const M=[[1,2,3,4],[8,6,0,9],[9,2,3,12]], R=3, C=4;
+  const fnS=$('#waFn'), axS=$('#waAx'), grid=$('#waGrid'), out=$('#waOut'), note=$('#waNote');
+  const red={
+    min:a=>Math.min(...a), max:a=>Math.max(...a),
+    argmin:a=>a.indexOf(Math.min(...a)), argmax:a=>a.indexOf(Math.max(...a)),
+    sum:a=>a.reduce((s,x)=>s+x,0), mean:a=>a.reduce((s,x)=>s+x,0)/a.length
+  };
+  function draw(){
+    const fn=fnS.value, ax=axS.value; const g=red[fn];
+    const hi=new Set(); let res, txt;
+    const isArg=fn.startsWith('arg'), pick=fn==='min'||fn==='max'||isArg;
+    const target = fn.includes('min') ? 'min' : 'max';
+    if (ax==='0'){
+      res=[]; for(let j=0;j<C;j++){const col=M.map(r=>r[j]); res.push(g(col)); if(pick){const k=col.indexOf(red[target](col)); hi.add(k+','+j);} else col.forEach((_,i)=>hi.add(i+','+j));}
+      txt = fmtArr(fn==='mean'?Object.assign(res,{__float:true}):res);
+    } else if (ax==='1'){
+      res=M.map((r,i)=>{ if(pick){hi.add(i+','+r.indexOf(red[target](r)));} else r.forEach((_,j)=>hi.add(i+','+j)); return g(r);});
+      txt = fmtArr(fn==='mean'?Object.assign(res,{__float:true}):res);
+    } else {
+      const flat=M.flat(); res=g(flat);
+      if (pick){ const k=flat.indexOf(red[target](flat)); hi.add(Math.floor(k/C)+','+(k%C)); } else flat.forEach((_,k)=>hi.add(Math.floor(k/C)+','+(k%C)));
+      txt = fn==='mean' ? String(+res.toFixed(8)) : String(res);
+    }
+    grid.innerHTML='';
+    const el=document.createElement('div'); el.className='axisgrid';
+    el.style.gridTemplateColumns = `repeat(${C}, minmax(42px, auto))` + (ax==='1'?' 18px minmax(56px,auto)':'');
+    const fmtCell = x => fn==='mean' ? (Number.isInteger(x)?x+'.':(+x.toFixed(2))+'…') : String(x);
+    M.forEach((r,i)=>{
+      r.forEach((x,j)=>{const c=document.createElement('div'); c.className='cellbox'+(hi.has(i+','+j)&&pick?' sel':''); if(!pick&&ax!=='None') c.style.borderColor='var(--accent)'; c.textContent=x; el.appendChild(c);});
+      if (ax==='1'){ const a=document.createElement('div'); a.className='idx'; a.style.alignSelf='center'; a.textContent='→'; el.appendChild(a);
+        const rc=document.createElement('div'); rc.className='cellbox res'; rc.textContent=fmtCell(res[i]); el.appendChild(rc); }
+    });
+    if (ax==='0'){
+      for(let j=0;j<C;j++){const a=document.createElement('div'); a.className='idx'; a.textContent='↓'; el.appendChild(a);}
+      for(let j=0;j<C;j++){const rc=document.createElement('div'); rc.className='cellbox res'; rc.textContent=fmtCell(res[j]); el.appendChild(rc);}
+    }
+    grid.appendChild(el);
+    if (ax==='None'){ const p=document.createElement('div'); p.className='result'; p.style.display='inline-block'; p.textContent='→ one value for the whole array: '+txt; grid.appendChild(p); }
+    out.textContent = `np.${fn}(M${ax==='None'?'':', axis='+ax})\n${txt}`;
+    note.textContent = ax==='0' ? 'axis=0 runs down each column, giving one result per column (4 values).'
+      : ax==='1' ? 'axis=1 runs along each row, giving one result per row (3 values).'
+      : 'With no axis, NumPy uses every element and returns one value.' + (isArg?' argmin/argmax then give a position in the flattened array.':'');
+  }
+  fnS.addEventListener('change',draw); axS.addEventListener('change',draw); draw();
+})();
+
+/* ---------- quizzes ---------- */
+$$('.quiz').forEach(q=>{
+  const fb=$('.fb',q), name=qName(q);
+  const prev=quiz[name];
+  if (prev && prev.ok){ const r=$(`input[value="${q.dataset.answer}"]`,q); if(r) r.checked=true; fb.textContent=fb.dataset.ok; fb.className='fb ok'; }
+  $$('input',q).forEach(r=>r.addEventListener('change',()=>{
+    const ok=r.value===q.dataset.answer;
+    fb.textContent=ok?fb.dataset.ok:fb.dataset.no; fb.className='fb '+(ok?'ok':'no');
+    const st=quiz[name]||{};
+    if (st.first===undefined) st.first=ok;   // first attempt is what counts as "first try"
+    if (ok) st.ok=true;
+    quiz[name]=st; store.set('np11-quiz',quiz); refreshProgress();
+  }));
+});
+
+/* ---------- quiz helpers ---------- */
+const SECRET='np11·biophys·jhu·2026';
+const B32='0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+const EPOCH=Date.UTC(2026,0,1);
+function enc(n,len){ let s=''; for(let i=0;i<len;i++){ s=B32[n%32]+s; n=Math.floor(n/32); } return s; }
+function dec(s){ let n=0; for(const ch of s){ const k=B32.indexOf(ch); if(k<0) return NaN; n=n*32+k; } return n; }
+function cyrb53(str,seed=0){ let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed; for(let i=0;i<str.length;i++){const ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
+  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909); h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909); return 4294967296*(2097151&h2)+(h1>>>0); }
+const normId=s=>s.trim().toLowerCase().replace(/\s+/g,'');
+function check(id,P){ return enc(cyrb53(`${SECRET}|NP11|${normId(id)}|${P}`) % (32**5),5); }
+const EXS=()=>$$('.ex').map(e=>({id:e.dataset.ex, title:$('.exhead b',e).textContent.replace(/^Exercise \d+ · /,''), sec:e.closest('section').dataset.num}));
+const QZS=()=>$$('.quiz').map(q=>({id:qName(q), sec:q.closest('section').dataset.num}));
+function qName(q){ const r=$('input',q); return r?r.name:''; }
+
+function renderSummary(){
+  const tb=$('#sumTable tbody'); if(!tb) return;
+  const rows=[];
+  EXS().forEach((e,i)=>rows.push(`<tr><td>Exercise ${i+1} · ${e.title}</td><td>${e.sec}</td><td>${done[e.id]?'<span class="ok">✓ Done</span>':'<span class="todo">Not yet</span>'}</td></tr>`));
+  QZS().forEach((q,i)=>{ const st=quiz[q.id]||{}; rows.push(`<tr><td>Quick check ${i+1}</td><td>${q.sec}</td><td>${st.ok?`<span class="ok">✓ Correct</span>${st.first?'':' <span class="todo">(not first try)</span>'}`:'<span class="todo">Not yet</span>'}</td></tr>`); });
+  tb.innerHTML=rows.join('');
+  const ne=EXS().filter(e=>done[e.id]).length, nq=QZS().filter(q=>(quiz[q.id]||{}).ok).length, nf=QZS().filter(q=>(quiz[q.id]||{}).first).length;
+  $('#sumLine').textContent=`Exercises ${ne} of 5 · Quick checks ${nq} of 6 (${nf} right on the first try).`;
+}
+function payload(){
+  let ex=0,ans=0,first=0;
+  EXS().forEach((e,i)=>{ if(done[e.id]) ex|=1<<i; });
+  QZS().forEach((q,i)=>{ const st=quiz[q.id]||{}; if(st.ok) ans|=1<<i; if(st.first) first|=1<<i; });
+  const now=new Date();
+  const day=Math.max(0,Math.min(4095,Math.round((Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())-EPOCH)/86400000)));
+  return ex + 32*ans + 2048*first + 131072*day;
+}
+
+
+/* ---------- Python runtime ---------- */
+const PHDAT = `    4.0000    1.0000
+    5.0000    0.9850
+    5.5000    0.9701
+    6.0000    0.8263
+    6.5000    0.7036
+    7.0000    0.3114
+    7.5000    0.1916
+    8.0000    0.0883
+    8.5000    0.0374
+    8.7000    0.0009
+    9.0000    0.0195
+    9.5000    0.0314
+   10.0000    0.0135
+   10.5000    0.0045
+   11.0000         0
+`;
+const HELPER = `
+import ast, sys, traceback
+import numpy as np
+np.set_printoptions(legacy='1.25')
+def _fresh():
+    return {'np': np, '__name__': '__main__'}
+def _fmt_err(e):
+    tb = traceback.extract_tb(e.__traceback__)
+    line = None
+    for fr in tb:
+        if fr.filename == '<cell>':
+            line = fr.lineno
+    if isinstance(e, SyntaxError):
+        line = e.lineno
+    msg = ''.join(traceback.format_exception_only(type(e), e)).strip().splitlines()[-1]
+    return (f"Line {line}: " if line else "") + msg
+def _run(src):
+    ns = _fresh()
+    try:
+        tree = ast.parse(src, '<cell>', 'exec')
+        last = None
+        if tree.body and isinstance(tree.body[-1], ast.Expr):
+            last = ast.Expression(tree.body.pop().value)
+        exec(compile(tree, '<cell>', 'exec'), ns)
+        if last is not None:
+            r = eval(compile(last, '<cell>', 'eval'), ns)
+            if r is not None:
+                print(repr(r))
+        return ''
+    except BaseException as e:
+        return _fmt_err(e)
+def _check(src, test):
+    ns = _fresh()
+    try:
+        exec(compile(src, '<cell>', 'exec'), ns)
+    except BaseException as e:
+        return 'Your code raised an error. ' + _fmt_err(e)
+    try:
+        exec(test, ns)
+    except AssertionError as e:
+        return str(e) or 'Not quite yet.'
+    except NameError as e:
+        return f"{e}. Did you assign every variable the exercise asks for?"
+    except BaseException as e:
+        return 'Check failed: ' + _fmt_err(e)
+    return 'OK'
+`;
+const statusBtn=$('#pyStatus'), statusTxt=$('#pyStatusText');
+function setStatus(s,t){ statusBtn.dataset.s=s; statusTxt.textContent=t; }
+let pyPromise=null;
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>rej(new Error('could not load '+src)); document.head.appendChild(s); }); }
+function getPy(){
+  if (!pyPromise){
+    setStatus('loading','Starting Python… (about 10 s the first time)');
+    pyPromise=(async()=>{
+      const base=new URL('pyodide/', location.href).href;
+      // archives are published with a .wasm suffix so the host serves them; map requests to those names
+      if (!window.__fetchShim){ const _f=window.fetch.bind(window); window.__fetchShim=true;
+        window.fetch=(u,o)=>{ let s=typeof u==='string'?u:(u instanceof URL?u.href:(u&&u.url)); if(s&&s.startsWith(base)&&/\.(zip|whl)$/.test(s)) return _f(s+'.wasm',o); return _f(u,o); }; }
+      await loadScript(base+'pyodide.js');
+      const py=await loadPyodide({indexURL:base});
+      await py.loadPackage('numpy');
+      py.runPython(HELPER);
+      py.FS.writeFile('ph.dat', PHDAT);
+      setStatus('ready','Python ready · NumPy 2.2');
+      return py;
+    })().catch(e=>{ console.error(e); setStatus('error','Python couldn’t start. Tap to retry.'); pyPromise=null; throw e; });
+  }
+  return pyPromise;
+}
+statusBtn.addEventListener('click',()=>{ getPy().catch(()=>{}); });
+
+let queue=Promise.resolve();
+function runPy(fnName, ...args){
+  const job = queue.then(async()=>{
+    const py=await getPy();
+    const lines=[];
+    py.setStdout({write:(buf)=>{ lines.push(new TextDecoder().decode(buf)); return buf.length; }});
+    py.setStderr({write:(buf)=>{ lines.push(new TextDecoder().decode(buf)); return buf.length; }});
+    let err;
+    try { err=py.globals.get(fnName)(...args); }
+    finally { py.runPython('import sys; sys.stdout.flush(); sys.stderr.flush()'); py.setStdout(); py.setStderr(); }
+    return {out:lines.join(''), err};
+  });
+  queue = job.catch(()=>{});
+  return job;
+}
+
+/* ---------- code cells ---------- */
+function autosize(t){ t.style.height='auto'; t.style.height=(t.scrollHeight+2)+'px'; }
+$$('.cell').forEach(cell=>{
+  const ta=$('textarea',cell); const original=ta.value;
+  ta.spellcheck=false; ta.setAttribute('autocapitalize','off'); ta.setAttribute('autocomplete','off');
+  ta.setAttribute('aria-label','Python code');
+  const ex=cell.closest('.ex');
+  const tools=document.createElement('div'); tools.className='tools';
+  const run=document.createElement('button'); run.type='button'; run.className='btn '+(ex?'':'primary'); run.textContent='Run';
+  const reset=document.createElement('button'); reset.type='button'; reset.className='btn'; reset.textContent='Reset';
+  tools.append(run,reset);
+  let check=null;
+  if (ex){ check=document.createElement('button'); check.type='button'; check.className='btn primary'; check.textContent='Check answer'; tools.append(check); }
+  const hint=document.createElement('span'); hint.className='hint'; hint.textContent='Ctrl/⌘ + Enter to run'; tools.append(hint);
+  cell.append(tools);
+  const out=document.createElement('pre'); out.className='out'; out.hidden=true; cell.append(out);
+  let verdict=null;
+  if (ex){ verdict=document.createElement('div'); verdict.className='verdict'; verdict.hidden=true; cell.after(verdict); }
+
+  autosize(ta);
+  ta.addEventListener('input',()=>autosize(ta));
+  ta.addEventListener('focus',()=>{ getPy().catch(()=>{}); },{once:true});
+  ta.addEventListener('keydown',e=>{
+    if ((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); (check||run).click(); }
+    else if (e.key==='Tab' && !e.shiftKey){ e.preventDefault(); const s=ta.selectionStart, en=ta.selectionEnd; ta.setRangeText('    ',s,en,'end'); autosize(ta); }
+  });
+  reset.onclick=()=>{ ta.value=original; autosize(ta); out.hidden=true; if(verdict) verdict.hidden=true; };
+
+  async function doRun(){
+    run.disabled=true; if(check) check.disabled=true;
+    out.hidden=false; out.className='out muted';
+    out.textContent = statusBtn.dataset.s==='ready' ? 'Running…' : 'Starting Python… the first run takes a few seconds.';
+    try{
+      const r=await runPy('_run', ta.value);
+      out.className='out'+(r.err?' err':'');
+      out.textContent=(r.out + (r.err ? (r.out && !r.out.endsWith('\n')?'\n':'') + r.err : '')).replace(/\n$/,'') || '(no output; use print() to show values)';
+      if(!r.err && !r.out) out.classList.add('muted');
+    }catch(e){ out.className='out err'; out.textContent='Python could not start in this browser. Check your connection and press Run again.'; }
+    run.disabled=false; if(check) check.disabled=false;
+  }
+  run.onclick=doRun;
+  if (check){
+    const test=$('script.test',ex).textContent;
+    check.onclick=async()=>{
+      await doRun();
+      if (out.classList.contains('err') && /could not start/.test(out.textContent)) return;
+      try{
+        const r=await runPy('_check', ta.value, test);
+        verdict.hidden=false;
+        if (r.err==='OK'){ verdict.className='verdict ok'; verdict.textContent='Correct. Nice work.'; done[ex.dataset.ex]=true; store.set('np11-done',done); refreshProgress(); }
+        else { verdict.className='verdict no'; verdict.textContent=r.err; }
+      }catch(e){}
+    };
+  }
+});
+refreshProgress();
+})();
+</script>
+
+</body>
+</html>
